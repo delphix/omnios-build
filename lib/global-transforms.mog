@@ -58,6 +58,7 @@
 <transform dir path=usr/share/aclocal$ -> set group other>
 <transform dir path=usr/share/lib$ -> set group sys>
 <transform dir path=var/lib$ -> set group other>
+<transform dir path=sbin$ -> set group sys>
 
 # These always exist due to SUNWcs, so we never need to worry about them
 <transform dir path=opt$ -> drop>

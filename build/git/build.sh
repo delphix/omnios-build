@@ -66,7 +66,7 @@ install_man() {
     logmsg "Fetching and installing pre-built man pages"
     if [[ ! -f ${TMPDIR}/${PROG}-manpages-${VER}.tar.gz ]]; then
         pushd $TMPDIR > /dev/null
-        logcmd $WGET -a $LOGFILE http://$MIRROR/$PROG/${PROG}-manpages-${VER}.tar.gz || \
+        get_resource $PROG/${PROG}-manpages-${VER}.tar.gz || \
             logerr "--- Failed to fetch tarball"
         popd > /dev/null
     fi
