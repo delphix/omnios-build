@@ -205,7 +205,7 @@ url_encode() {
 LANG=C
 export LANG
 # Set the path - This can be overriden/extended in the build script
-PATH="/opt/gcc-4.8.1/bin:/usr/ccs/bin:/usr/bin:/usr/sbin:/usr/gnu/bin:/usr/sfw/bin"
+PATH="/opt/gcc-4.7.2/bin:/usr/ccs/bin:/usr/bin:/usr/sbin:/usr/gnu/bin:/usr/sfw/bin"
 export PATH
 # The dir where this file is located - used for sourcing further files
 MYDIR=$PWD/`dirname $BASH_SOURCE[0]`
@@ -230,7 +230,7 @@ shift $((OPTIND - 1))
 
 BasicRequirements(){
     local needed=""
-    [[ -x /opt/gcc-4.8.1/bin/gcc ]] || needed+=" developer/gcc48"
+    [[ -x /opt/gcc-4.7.2/bin/gcc ]] || needed+=" developer/gcc47"
     [[ -x /usr/bin/ar ]] || needed+=" developer/object-file"
     [[ -x /usr/bin/ld ]] || needed+=" developer/linker"
     [[ -f /usr/lib/crt1.o ]] || needed+=" developer/library/lint"
@@ -660,7 +660,7 @@ make_package() {
     fi
     echo "set name=pkg.summary value=\"$SUMMARY\"" >> $MY_MOG_FILE
     echo "set name=pkg.descr value=\"$DESCSTR\"" >> $MY_MOG_FILE
-    echo "set name=publisher value=\"sa@omniti.com\"" >> $MY_MOG_FILE
+    echo "set name=publisher value=\"ips@delphix.com\"" >> $MY_MOG_FILE
     if [[ -n "$RUN_DEPENDS_IPS" ]]; then
         logmsg "------ Adding dependencies"
         for i in $RUN_DEPENDS_IPS; do

@@ -28,12 +28,12 @@
 #############################################################################
 
 # Default branch
-RELVER=151008
+RELVER=151005
 PVER=0.$RELVER
 
 # Which server to fetch files from.
 # If $MIRROR begins with a '/', it is treated as a local directory.
-MIRROR=mirrors.omniti.com
+MIRROR=/net/pharos/export/third-party/mirror
 
 # Default prefix for packages (may be overridden)
 PREFIX=/usr
