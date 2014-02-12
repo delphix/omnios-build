@@ -23,6 +23,7 @@
 #
 # Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
+# Copyright (c) 2014 by Delphix. All rights reserved.
 #
 # Load support functions
 . ../../lib/functions.sh
