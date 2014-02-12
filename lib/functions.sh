@@ -23,6 +23,7 @@
 #
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
+# Copyright (c) 2013 by Delphix. All rights reserved.
 #
 
 umask 022
@@ -625,6 +626,7 @@ make_package() {
         DESCSTR="$DESCSTR ($FLAVOR)"
     fi
     PKGSEND=/usr/bin/pkgsend
+    PKGDEPEND=/usr/bin/pkgdepend
     PKGLINT=/usr/bin/pkglint
     PKGMOGRIFY=/usr/bin/pkgmogrify
     PKGFMT=/usr/bin/pkgfmt
@@ -661,37 +663,20 @@ make_package() {
     echo "set name=pkg.summary value=\"$SUMMARY\"" >> $MY_MOG_FILE
     echo "set name=pkg.descr value=\"$DESCSTR\"" >> $MY_MOG_FILE
     echo "set name=publisher value=\"ips@delphix.com\"" >> $MY_MOG_FILE
-    if [[ -n "$RUN_DEPENDS_IPS" ]]; then
-        logmsg "------ Adding dependencies"
-        for i in $RUN_DEPENDS_IPS; do
-            # IPS dependencies have multiple types, of which we care about four:
-            #    require, optional, incorporate, exclude
-            # For backward compatibility, assume no indicator means type=require
-            # FMRI attributes are implicitly rooted so we don't have to prefix
-            # 'pkg:/' or worry about ambiguities in names
-            local DEPTYPE="require"
-            case ${i:0:1} in
-                \=)
-                    DEPTYPE="incorporate"
-                    i=${i:1}
-                    ;;
-                \?)
-                    DEPTYPE="optional"
-                    i=${i:1}
-                    ;;
-                \-)
-                    DEPTYPE="exclude"
-                    i=${i:1}
-                    ;;
-            esac
-            echo "depend type=$DEPTYPE fmri=${i}" >> $MY_MOG_FILE
-        done
-    fi
     if [[ -f $SRCDIR/local.mog ]]; then
         LOCAL_MOG_FILE=$SRCDIR/local.mog
     fi
     logmsg "--- Applying transforms"
-    $PKGMOGRIFY $P5M_INT $MY_MOG_FILE $GLOBAL_MOG_FILE $LOCAL_MOG_FILE $* | $PKGFMT -u > $P5M_FINAL
+    $PKGMOGRIFY $P5M_INT $MY_MOG_FILE $GLOBAL_MOG_FILE $LOCAL_MOG_FILE $* | \
+        $PKGFMT -u > $P5M_FINAL.t
+    logmsg "--- Generating dependencies"
+    $PKGDEPEND generate -m -d $DESTDIR $P5M_FINAL.t > $P5M_FINAL.d || \
+        logerr "----- pkgdepend generate failed"
+    $PKGDEPEND resolve -m $P5M_FINAL.d || \
+        logerr "----- pkgdepend resolve failed"
+    # Strip the OS version, etc from the fmris.
+    sed -E '/^depend fmri/ s/@([^ :,-]*)[^ ]*/@\1/' $P5M_FINAL.d.res >$P5M_FINAL
+
     if [[ -z $SKIP_PKGLINT ]] && ( [[ -n $BATCH ]] ||  ask_to_pkglint ); then
         $PKGLINT -c $TMPDIR/lint-cache -r $PKGSRVR $P5M_FINAL || \
             logerr "----- pkglint failed"
@@ -1120,7 +1105,7 @@ clean_up() {
         logcmd rm -rf $DESTDIR || \
             logerr "Failed to remove temporary install directory"
         logmsg "--- Cleaning up temporary manifest and transform files"
-        logcmd rm -f $P5M_INT $P5M_FINAL $MY_MOG_FILE || \
+        logcmd rm -f $P5M_INT $P5M_FINAL{,.d,.t,.d.res} $MY_MOG_FILE || \
             logerr "Failed to remove temporary manifest and transform files"
         logmsg "Done."
     fi
