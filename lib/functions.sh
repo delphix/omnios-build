@@ -667,7 +667,8 @@ make_package() {
         LOCAL_MOG_FILE=$SRCDIR/local.mog
     fi
     logmsg "--- Applying transforms"
-    $PKGMOGRIFY $P5M_INT $MY_MOG_FILE $GLOBAL_MOG_FILE $LOCAL_MOG_FILE $* | \
+    $PKGMOGRIFY -DVER="$VER" -DPROG="$PROG" -DPKG="$PKG" \
+        $P5M_INT $MY_MOG_FILE $GLOBAL_MOG_FILE $LOCAL_MOG_FILE $* | \
         $PKGFMT -u > $P5M_FINAL.t
     logmsg "--- Generating dependencies"
     $PKGDEPEND generate -m -d $DESTDIR $P5M_FINAL.t > $P5M_FINAL.d || \

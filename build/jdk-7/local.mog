@@ -1,0 +1,37 @@
+#
+# CDDL HEADER START
+#
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License (the "License").
+# You may not use this file except in compliance with the License.
+#
+# You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+# or http://www.opensolaris.org/os/licensing.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+# If applicable, add the following below this CDDL HEADER, with the
+# fields enclosed by brackets "[]" replaced with your own identifying
+# information: Portions Copyright [yyyy] [name of copyright owner]
+#
+# CDDL HEADER END
+#
+
+#
+# Copyright (c) 2014 by Delphix. All rights reserved.
+#
+
+set name=info.classification value=org.opensolaris.category.2008:Development/Java
+link path=opt/jdk target=jdk1.7.0_$(VER) mediator=jdk mediator-version=1.7.0.$(VER)
+license opt/jdk1.7.0_$(VER)/LICENSE license="BCL"
+
+#
+# pkgdepend has difficulties finding libjvm.so and libjava.so even though we
+# are installing it here. We tell it not to generate a dependency on either.
+#
+<transform file path=opt/jdk1.7.0_$(VER)/* -> \
+  add pkg.depend.bypass-generate libjvm.so>
+<transform file path=opt/jdk1.7.0_$(VER)/* -> \
+  add pkg.depend.bypass-generate libjava.so>
