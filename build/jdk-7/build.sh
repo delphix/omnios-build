@@ -36,7 +36,7 @@ PKG=developer/java/jdk-7
 SUMMARY="Java Platform Standard Edition Development"
 DESC="The Java Platform Standard Edition Development Kit (JDK) includes both the runtime environment (Java virtual machine, the Java platform classes and supporting files) and development tools (compilers, debuggers, tool libraries and other tools). The JDK is a development environment for building applications, applets and components that can be deployed with the Java Platform Standard Edition Runtime Environment."
 
-BUILD_DEPENDS_IPS=
+BUILD_DEPENDS_IPS=pkg:/archiver/gnu-tar
 RUN_DEPENDS_IPS=
 
 init
