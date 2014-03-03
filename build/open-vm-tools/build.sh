@@ -47,7 +47,7 @@ install_smf() {
 		logerr "--- Failed to copy manifest file"
 }
 
-CFLAGS=-Wno-deprecated-declarations
+CFLAGS="-Wno-deprecated-declarations -Wno-unused-local-typedefs"
 CONFIGURE_OPTS="
 	--without-kernel-modules
 	--disable-static
