@@ -1,0 +1,7 @@
+license LICENSE license=Apache2
+
+#
+# pkglint does not like the runant.py file, and runant.py is not necessary
+# for the proper functioning of ant, so we just exclude it from the pacakge.
+#
+<transform file path=opt/omni/bin/runant.py -> drop>
