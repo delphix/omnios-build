@@ -1,0 +1,91 @@
+diff -ru -x Tools.mk -x 'config.*' xen-4.4.0/config/SunOS.mk xen-4.4.0-tools/config/SunOS.mk
+--- xen-4.4.0/config/SunOS.mk	2014-03-10 10:43:57.000000000 +0000
++++ xen-4.4.0-tools/config/SunOS.mk	2014-04-01 05:49:35.991067069 +0000
+@@ -14,7 +14,7 @@
+ 
+ SHELL      = bash
+ 
+-INSTALL      = ginstall
++INSTALL      = install
+ INSTALL_DIR  = $(INSTALL) -d -m0755 -p
+ INSTALL_DATA = $(INSTALL) -m0644 -p
+ INSTALL_PROG = $(INSTALL) -m0755 -p
+diff -ru -x Tools.mk -x 'config.*' xen-4.4.0/tools/configure xen-4.4.0-tools/tools/configure
+--- xen-4.4.0/tools/configure	2014-03-10 10:43:57.000000000 +0000
++++ xen-4.4.0-tools/tools/configure	2014-03-29 01:18:13.392882239 +0000
+@@ -7490,7 +7490,7 @@
+   LIBS="-laio $LIBS"
+ 
+ else
+-  as_fn_error $? "Could not find libaio" "$LINENO" 5
++  echo "Skipping"
+ fi
+ 
+ 
+@@ -7782,10 +7782,7 @@
+ 
+         for ax_cv_ptyfuncs_libs in -lutil "" NOT_FOUND; do
+             if test "x$ax_cv_ptyfuncs_libs" = "xNOT_FOUND"; then
+-                { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "Unable to find library for openpty and login_tty
+-See \`config.log' for more details" "$LINENO" 5; }
++                echo "Skipping"
+             fi
+ 
+     saved_LIBS="$LIBS"
+@@ -7865,7 +7862,7 @@
+   LIBS="-lyajl $LIBS"
+ 
+ else
+-  as_fn_error $? "Could not find yajl" "$LINENO" 5
++  echo "Skipping"
+ fi
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for deflateCopy in -lz" >&5
+diff -ru -x Tools.mk -x 'config.*' xen-4.4.0/tools/misc/Makefile xen-4.4.0-tools/tools/misc/Makefile
+--- xen-4.4.0/tools/misc/Makefile	2014-03-10 10:43:57.000000000 +0000
++++ xen-4.4.0-tools/tools/misc/Makefile	2014-04-01 05:49:29.509495605 +0000
+@@ -18,7 +18,7 @@
+ 
+ INSTALL_BIN-y := xencons xencov_split
+ INSTALL_BIN-$(CONFIG_X86) += xen-detect
+-INSTALL_BIN := $(INSTALL_BIN-y)
++INSTALL_BIN := xen-detect
+ 
+ INSTALL_SBIN-y := xen-bugtool xen-python-path xenperf xenpm xen-tmem-list-parse gtraceview \
+ 	gtracestat xenlockprof xenwatchdogd xen-ringwatch xencov
+@@ -49,6 +49,11 @@
+ 	$(INSTALL_PYTHON_PROG) $(INSTALL_PRIVBIN) $(DESTDIR)$(PRIVATE_BINDIR)
+ 	set -e; for d in $(SUBDIRS); do $(MAKE) -C $$d install-recurse; done
+ 
++.PHONY: install-xen-detect
++install-xen-detect: xen-detect
++	$(INSTALL_DIR) $(DESTDIR)$(BINDIR)
++	$(INSTALL_PYTHON_PROG) $(INSTALL_BIN) $(DESTDIR)$(BINDIR)
++
+ .PHONY: clean
+ clean:
+ 	$(RM) *.o $(TARGETS) *~ $(DEPS)
+diff -ru -x Tools.mk -x 'config.*' xen-4.4.0/tools/xenstore/Makefile xen-4.4.0-tools/tools/xenstore/Makefile
+--- xen-4.4.0/tools/xenstore/Makefile	2014-03-10 10:43:57.000000000 +0000
++++ xen-4.4.0-tools/tools/xenstore/Makefile	2014-04-01 05:50:16.131137010 +0000
+@@ -133,6 +133,18 @@
+ 	ln -sf xenstore-compat/xs.h  $(DESTDIR)$(INCLUDEDIR)/xs.h
+ 	ln -sf xenstore-compat/xs_lib.h $(DESTDIR)$(INCLUDEDIR)/xs_lib.h
+ 
++.PHONY: install-clients
++install-clients: clients
++	$(INSTALL_DIR) $(DESTDIR)$(BINDIR)
++	$(INSTALL_PROG) xenstore $(DESTDIR)$(BINDIR)
++	set -e ; for c in $(CLIENTS) ; do \
++		ln -f $(DESTDIR)$(BINDIR)/xenstore $(DESTDIR)$(BINDIR)/$${c} ; \
++	done
++	$(INSTALL_DIR) $(DESTDIR)$(LIBDIR)
++	$(INSTALL_PROG) libxenstore.so.$(MAJOR).$(MINOR) $(DESTDIR)$(LIBDIR)
++	ln -sf libxenstore.so.$(MAJOR).$(MINOR) $(DESTDIR)$(LIBDIR)/libxenstore.so.$(MAJOR)
++	ln -sf libxenstore.so.$(MAJOR) $(DESTDIR)$(LIBDIR)/libxenstore.so
++
+ -include $(DEPS)
+ 
+ # never delete any intermediate files.
