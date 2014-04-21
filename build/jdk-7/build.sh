@@ -29,7 +29,7 @@
 . ../../lib/functions.sh
 
 PROG=jdk-7
-VER=51
+VER=55
 BUILDDIR=jdk1.7.0_$VER
 VERHUMAN=$VER
 PKG=developer/java/jdk-7
