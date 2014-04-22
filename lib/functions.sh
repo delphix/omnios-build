@@ -77,6 +77,7 @@ process_opts() {
                 ;;
             r)
                 PKGSRVR=$OPTARG
+                [[ ${PKGSRVR:0:1} == "/" ]] && PKGSRVR=file://$PKGSRVR
                 ;;
             a)
                 BUILDARCH=$OPTARG
