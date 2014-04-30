@@ -23,18 +23,25 @@
 #
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
+# Copyright (c) 2014 by Delphix. All rights reserved.
 #
+
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=glib
-VER=2.34.1
+VER=2.40.0
 PKG=library/glib2
 SUMMARY="$PROG - GNOME GLib utility library"
 DESC="$SUMMARY"
 
-DEPENDS_IPS="SUNWcs library/libffi@3.0.11 library/zlib system/library
-	system/library/gcc-4-runtime runtime/perl"
+BUILD_DEPENDS_IPS=\
+    library/libffi@3.0.11 \
+    library/zlib \
+    runtime/perl \
+    developer/build/libtool \
+    developer/build/autoconf \
+    developer/build/automake
 
 CONFIGURE_OPTS="--disable-fam --disable-dtrace"
 
@@ -47,8 +54,6 @@ configure32() {
     export LIBFFI_LIBS
     configure32_orig
 
-    logcmd perl -pi -e 's#(\$CC.*\$compiler_flags)#$1 -nostdlib -lc#g;' libtool ||
-        logerr "libtool patch failed"
     # one file here requires c99 compilation and most others prohibit it
     # it is a test, so no runtime issues will be present
     pushd glib/tests > /dev/null
@@ -63,8 +68,6 @@ configure64() {
     export LIBFFI_LIBS
     configure64_orig
 
-    logcmd perl -pi -e 's#(\$CC.*\$compiler_flags)#$1 -nostdlib -lc#g;' libtool ||
-        logerr "libtool patch failed"
     # one file here requires c99 compilation and most others prohibit it
     # it is a test, so no runtime issues will be present
     pushd glib/tests > /dev/null
@@ -77,6 +80,11 @@ init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
+
+logcmd pushd $TMPDIR/$BUILDDIR >/dev/null
+logcmd autoreconf -fis
+logcmd popd >/dev/null
+
 build
 make_isa_stub
 make_package

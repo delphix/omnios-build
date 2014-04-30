@@ -1,0 +1,11 @@
+--- configure.ac.alex   Fri Apr 25 21:40:46 2014
++++ configure.ac        Fri Apr 25 21:41:07 2014
+@@ -3508,7 +3508,7 @@
+    -Wall -Wstrict-prototypes -Werror=declaration-after-statement \
+    -Werror=missing-prototypes -Werror=implicit-function-declaration \
+    -Werror=pointer-arith -Werror=init-self -Werror=format-security \
+-   -Werror=format=2 -Werror=missing-include-dirs])
++   -Werror=missing-include-dirs])
+ ])
+ AC_SUBST(GLIB_WARN_CFLAGS)
+ 
