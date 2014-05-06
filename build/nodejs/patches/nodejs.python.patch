@@ -1,0 +1,162 @@
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/buildbot/buildbot_run.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/buildbot/buildbot_run.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/buildbot/buildbot_run.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/buildbot/buildbot_run.py	2014-05-01 22:46:02.986371524 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/gyp_main.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/gyp_main.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/gyp_main.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/gyp_main.py	2014-05-01 22:46:02.992100156 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2009 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/gyptest.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/gyptest.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/gyptest.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/gyptest.py	2014-05-01 22:46:02.997959308 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/__init__.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/__init__.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/__init__.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/__init__.py	2014-05-01 22:46:03.014279022 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/common_test.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/common_test.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/common_test.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/common_test.py	2014-05-01 22:46:03.018785458 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/easy_xml_test.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/easy_xml_test.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/easy_xml_test.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/easy_xml_test.py	2014-05-01 22:46:03.023705237 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2011 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/flock_tool.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/flock_tool.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/flock_tool.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/flock_tool.py	2014-05-01 22:46:03.028501013 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ # Copyright (c) 2011 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/generator/msvs_test.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/generator/msvs_test.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/generator/msvs_test.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/generator/msvs_test.py	2014-05-01 22:46:03.033111726 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/input_test.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/input_test.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/input_test.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/input_test.py	2014-05-01 22:46:03.038893897 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright 2013 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/mac_tool.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/mac_tool.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/mac_tool.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/mac_tool.py	2014-05-01 22:46:03.045741187 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/MSVSSettings_test.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/MSVSSettings_test.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/MSVSSettings_test.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/MSVSSettings_test.py	2014-05-01 22:46:03.007808612 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/win_tool.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/win_tool.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/win_tool.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/pylib/gyp/win_tool.py	2014-05-01 22:46:03.050988727 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/samples/samples node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/samples/samples
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/samples/samples	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/samples/samples	2014-05-01 22:46:03.054709538 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2009 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/setup.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/setup.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/setup.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/setup.py	2014-05-01 22:46:03.058720477 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2009 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/graphviz.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/graphviz.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/graphviz.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/graphviz.py	2014-05-01 22:46:03.063207802 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2011 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/pretty_gyp.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/pretty_gyp.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/pretty_gyp.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/pretty_gyp.py	2014-05-01 22:46:03.068617940 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/pretty_sln.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/pretty_sln.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/pretty_sln.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/pretty_sln.py	2014-05-01 22:46:03.073225452 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+diff -ruN node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/pretty_vcproj.py node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/pretty_vcproj.py
+--- node-v0.10.26.orig/deps/npm/node_modules/node-gyp/gyp/tools/pretty_vcproj.py	2014-02-18 23:34:29.000000000 +0000
++++ node-v0.10.26/deps/npm/node_modules/node-gyp/gyp/tools/pretty_vcproj.py	2014-05-01 22:46:03.079757511 +0000
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python2.6
+ 
+ # Copyright (c) 2012 Google Inc. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
