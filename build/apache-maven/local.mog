@@ -1,0 +1,16 @@
+# file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+# If applicable, add the following below this CDDL HEADER, with the
+# fields enclosed by brackets "[]" replaced with your own identifying
+# information: Portions Copyright [yyyy] [name of copyright owner]
+#
+# CDDL HEADER END
+#
+#
+# Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Use is subject to license terms.
+#
+# Copyright (c) 2014 by Delphix. All rights reserved.
+#
+license LICENSE license=Apache2
+set name=info.classification \
+    value="org.opensolaris.category.2008:Development/Distribution Tools"
