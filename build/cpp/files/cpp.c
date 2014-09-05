@@ -5,6 +5,9 @@
  */
 /* Copyright (c) 2012 Joyent, Inc. All rights reserved. */
 /*
+ * Copyright (c) 2014 by Delphix. All rights reserved.
+ */
+/*
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
@@ -878,8 +881,12 @@ dodef(p) char *p; {/* process '#define' */
 	oldsavch=psav=savch;
 	for (;;) {/* accumulate definition until linefeed */
 		outp=inp=p; p=cotoken(p); pin=inp;
-		if (*pin=='\\' && pin[1]=='\n')
-			continue;	/* ignore escaped lf */
+
+		/* Emit an escaped linefeed, but otherwise ignore it. */
+		if (*pin=='\\' && pin[1]=='\n') {
+			putc('\n',fout);
+			continue;
+		}
 		if (*pin=='\n') break;
 		if (params) {
 			/* mark the appearance of formals in the definiton */
