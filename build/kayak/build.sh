@@ -28,8 +28,31 @@
 # We have to build as root to manipulate ZFS datasets
 export ROOT_OK=yes
 
+if [[ "$UID" != 0 && ! -z $KAYAK_SUDO_BUILD ]]; then
+       # Run sudo BEFORE functions.sh eats the parameters.
+       # Installing OmniOS-on-demand should create an entry in /etc/sudoers.d/
+       # to cover running this script under sudo.
+       echo "Running again under sudo, currently UID = $UID, EUID = $EUID."
+       export OLDUSER=`whoami`
+       export KAYAK_SUDO_BUILD
+       exec sudo -n ./build.sh $@
+fi
+
 # Load support functions
 . ../../lib/functions.sh
+
+# Set up VERSION now in the environment for Kayak's makefiles if needed.
+# NOTE: This is currently dependent on PREBUILT_ILLUMOS as a way to prevent
+# least-surprise.  We may want to promote this to "do it all the time!"
+if [ -d ${PREBUILT_ILLUMOS:-/dev/null} ]; then
+    logmsg "Using pre-built Illumos at $PREBUILT_ILLUMOS (may need to wait)"
+    wait_for_prebuilt
+    export VERSION=r$RELVER
+    logmsg "Using VERSION=$VERSION"
+else
+    logmsg "Using non-pre-built illumos - unsetting VERSION."
+    unset VERSION
+fi
 
 if [[ "$UID" != "0" ]]; then
     logerr "--- This script needs to be run as root."
@@ -60,18 +83,17 @@ clone_source() {
     logmsg "kayak -> $CHECKOUTDIR/kayak"
     logcmd mkdir -p $TMPDIR/$BUILDDIR
     pushd $CHECKOUTDIR > /dev/null
-    if [[ ! -d kayak ]]; then
-        logmsg "--- No checkout found, cloning anew"
-        logcmd $GIT clone anon@src.omniti.com:~omnios/core/kayak
-    else
-        logmsg "--- Checkout found, updating it"
-        pushd kayak > /dev/null
-        $GIT pull || logerr "failed to update"
-        popd > /dev/null
+    if [[ -d kayak ]]; then
+        logmsg "--- old checkout found, removing it."
+        logcmd rm -rf kayak
     fi
+    logcmd $GIT clone anon@src.omniti.com:~omnios/core/kayak
     pushd kayak > /dev/null
-    GITREV=$(git rev-parse HEAD)
-    VERHUMAN="$VERHUMAN (git: ${GITREV:0:7})"
+    logcmd $GIT checkout r$RELVER || logmsg "No r$RELVER branch, using master."
+    GITREV=`$GIT log -1  --format=format:%at`
+    COMMIT=`$GIT log -1  --format=format:%h`
+    REVDATE=`echo $GITREV | gawk '{ print strftime("%c %Z",$1) }'`
+    VERHUMAN="${COMMIT:0:7} from $REVDATE"
     popd > /dev/null
     popd > /dev/null
 }
@@ -103,6 +125,12 @@ logmsg "Now building $PKG"
 build_server
 make_package kayak.mog
 clean_up
+# Do extra cleaning up if we got run under sudo from ourselves.
+if [[ -z `echo $RPATH | grep http://` ]]; then
+       OLDUSER=`ls -ltd $RPATH | awk '{print $3}'`
+       logmsg "--- Re-chowning $RPATH to user $OLDUSER"
+       logcmd chown -R $OLDUSER $RPATH
+fi
 
 PKG=system/install/kayak-kernel
 SUMMARY="Kayak - network installer (kernel, miniroot and pxegrub)"
@@ -113,8 +141,14 @@ DEPENDS_IPS=""
 
 logmsg "Now building $PKG"
 build_miniroot
-make_package
+make_package kayak-kernel.mog
 clean_up
+# Do extra cleaning up if we got run under sudo from ourselves.
+if [[ -z `echo $RPATH | grep http://` ]]; then
+       OLDUSER=`ls -ltd $RPATH | awk '{print $3}'`
+       logmsg "--- Re-chowning $RPATH to user $OLDUSER"
+       logcmd chown -R $OLDUSER $RPATH
+fi
 
 # Vim hints
 # vim:ts=4:sw=4:et:

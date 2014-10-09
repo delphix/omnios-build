@@ -28,9 +28,9 @@
 . ../../lib/functions.sh
 
 PROG=swig
-VER=2.0.11
+VER=2.0.12
 PKG=developer/swig
-SUMMARY="The Simplified and Interface Generator (swig)"
+SUMMARY="The Simplified Wrapper and Interface Generator (swig)"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="runtime/perl runtime/python-26"

@@ -29,7 +29,7 @@
 . ../../lib/functions.sh
 
 PROG=openjdk
-VER=0.5.11
+VER=1.7.0
 UPDATE=21
 BUILD=30
 VERHUMAN="jdk7u${UPDATE}-b${BUILD}"
@@ -39,7 +39,7 @@ VERHUMAN="jdk7u${UPDATE}-b${BUILD}"
 HGREV=450e8dde919df278fe75ae95e0eb0a6464f5bc41
 
 PKG=
-SUMMARY="OpenJDK 7.0 Dev. Tools (1.7.0_21)"
+SUMMARY="x"
 DESC="$SUMMARY"
 
 BUILDARCH=32
@@ -47,7 +47,6 @@ DESTDIR=
 DATETIME=`TZ=UTC /usr/bin/date +"%Y%m%dT%H%M%SZ"`
 
 BUILD_DEPENDS_IPS="developer/sunstudio12.1 system/header/header-audio developer/versioning/mercurial runtime/java omniti/developer/build/ant omniti/library/freetype2"
-RUN_DEPENDS_IPS="system/library shell/bash system/library/c++/sunpro library/unixodbc system/library/math"
 
 REPO="http://hg.openjdk.java.net/jdk7u/jdk7u"
 PATH=/opt/sunstudio12.1/bin:/opt/omni/bin:${PATH}
@@ -191,24 +190,14 @@ make_install_j2re() {
     logcmd mkdir -p $J2RE_INSTALLTMP/usr/share/man/ja_JP.PCK/man1
     logcmd mkdir -p $J2RE_INSTALLTMP/usr/share/man/ja_JP.UTF-8/man1
 
-    # we end up with no jre/ directory in the j2re-image
-    # directory, which is comically busted. fix that so packages
-    # expecting things in a jre/ directory find them there.
-    pushd $TMPDIR/$BUILDDIR/build/solaris-i586/j2re-image > /dev/null
-    logcmd mkdir -p jre
-    logcmd mv bin lib jre
-
-    # and make sure that there are files in the bin/ directory
-    logcmd mkdir bin
-    logcmd cp jre/bin/* bin/
-
     # copy in our JRE files
+    pushd $TMPDIR/$BUILDDIR/build/solaris-i586/j2re-image > /dev/null
     tar cf - . | (cd $JAVA_INSTALL_ROOT && tar xvf -)
     popd > /dev/null
 
     # set up /usr/java symlink
     pushd $J2RE_INSTALLTMP/usr >/dev/null
-    logcmd ln -s ./java jre
+    logcmd ln -s ./java jdk
     popd > /dev/null
 
     # set up java symlinks into /usr/bin
@@ -297,7 +286,7 @@ make_install_j2sdk
 
 # Build up a full VER for the package with all the numeric components
 # The update number doesn't appear to zero-pad, but the build does
-#VER=${VER}.${UPDATE}.${BUILD#0}
+VER=${VER}.${UPDATE}.${BUILD#0}
 
 PKG=runtime/java
 SUMMARY="Open-source implementation of the seventh edition of the Java SE Platform"
@@ -310,7 +299,7 @@ make_package
 PKG=developer/java/jdk
 SUMMARY="Open-source implementation of the seventh edition of the Java SDK"
 DESC="$SUMMARY"
-RUN_DEPENDS_IPS=runtime/java
+DEPENDS_IPS=runtime/java
 DESTDIR=$J2SDK_INSTALLTMP
 
 # Assemble the developer/java/jdk package

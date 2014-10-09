@@ -33,10 +33,16 @@ PROG=illumos-kvm
 # by starting with "1.0.x" so this'll do.  There should be no need to change
 # this going forward.
 VER=1.0.5.11
-# Default to building tip, but if needed, specify the desired commit here
-COMMIT=
+# Default to building tip, but site.sh can force a specific commit checkout.
+COMMIT=$KVM_ROLLBACK
 SRC_REPO=https://github.com/joyent/illumos-kvm.git
-KERNEL_SOURCE=/code/omnios-$RELVER/illumos-omnios
+if [ -d ${PREBUILT_ILLUMOS:-/dev/null} ]; then
+    logmsg "Using pre-built Illumos at $PREBUILT_ILLUMOS (may need to wait...)"
+    wait_for_prebuilt
+    KERNEL_SOURCE=$PREBUILT_ILLUMOS
+else
+    KERNEL_SOURCE=/code/$USER-omnios-$RELVER/illumos-omnios
+fi
 PROTO_AREA=$KERNEL_SOURCE/proto/root_i386
 PATCHDIR=patches.$PROG
 PKG=driver/virtualization/kvm
@@ -44,7 +50,7 @@ SUMMARY="placeholder; reset below"
 DESC="$SUMMARY"
 
 # These are the dependencies for both the module and the cmds
-BUILD_DEPENDS_IPS="archiver/gnu-tar developer/gcc48 developer/versioning/git file/gnu-coreutils"
+BUILD_DEPENDS_IPS="archiver/gnu-tar developer/gcc44 developer/versioning/git file/gnu-coreutils"
 
 # Only 64-bit matters
 BUILDARCH=64
@@ -105,10 +111,16 @@ clean_up
 
 # Next, the utilities (they follow the kernel module version)
 PROG=illumos-kvm-cmd
-# Default to building tip, but if needed, specify the desired commit here
-COMMIT=
+# Default to building tip, but site.sh can force a specific commit checkout.
+COMMIT=$KVM_CMD_ROLLBACK
 SRC_REPO=https://github.com/joyent/illumos-kvm-cmd.git
-KERNEL_SOURCE=/code/omnios-$RELVER/illumos-omnios
+if [ -d $PREBUILT_ILLUMOS:-/dev/null ]; then
+    logmsg "Using pre-built Illumos at $PREBUILT_ILLUMOS (may need to wait...)"
+    wait_for_prebuilt
+    KERNEL_SOURCE=$PREBUILT_ILLUMOS
+else
+    KERNEL_SOURCE=/code/omnios-$RELVER/illumos-omnios
+fi
 KVM_DIR=$TMPDIR/illumos-kvm-$VER
 PATCHDIR=patches.$PROG
 PKG=system/kvm

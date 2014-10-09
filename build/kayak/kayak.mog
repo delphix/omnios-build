@@ -20,8 +20,12 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2014 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 <transform dir  path=var/kayak/log$ -> set owner nobody>
 <transform dir  path=var/kayak/log$ -> set group nobody>
+
+# Prevents pkgdepend from freaking out.
+<transform file path=lib/svc/method/svc-kayak -> set pkg.depend.bypass-generate .* >
+<transform file path=lib/svc/manifest/network/kayak.xml -> set pkg.depend.bypass-generate .* >

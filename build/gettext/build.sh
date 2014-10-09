@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=gettext                  # App name
-VER=0.18.3.1                  # App version
+VER=0.19.2                  # App version
 PKG=text/gnu-gettext          # Package name (without prefix)
 SUMMARY="gettext - GNU gettext utility"
 DESC="GNU gettext - GNU gettext utility ($VER)"
@@ -46,6 +46,19 @@ CONFIGURE_OPTS="--infodir=$PREFIX/share/info
 	--disable-static
 	--disable-shared
 	--bindir=/usr/bin"
+
+install_license() {
+    local LICENSE_FILE
+    LICENSE_FILE=$TMPDIR/$BUILDDIR/$1
+
+    if [ -f "$LICENSE_FILE" ]; then
+        logmsg "Using $LICENSE_FILE as package license"
+        logcmd cp $LICENSE_FILE $DESTDIR/license
+    else
+        logerr "-- $LICENSE_FILE not found!"
+        exit 255
+    fi
+}
 
 make_links() {
     logmsg "Creating GNU symlinks"
@@ -65,6 +78,7 @@ download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
+install_license COPYING
 make_isa_stub
 make_links
 make_package

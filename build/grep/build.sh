@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=grep       # App name
-VER=2.14         # App version
+VER=2.20         # App version
 PKG=text/gnu-grep    # Package name (without prefix)
 SUMMARY="ggrep - GNU grep utilities"
 DESC="$SUMMARY $VER"
@@ -44,6 +44,19 @@ CONFIGURE_OPTS_32="--prefix=$PREFIX
         --libdir=$PREFIX/lib
         --libexecdir=$PREFIX/libexec
 	--program-prefix=g"
+
+install_license() {
+    local LICENSE_FILE
+    LICENSE_FILE=$TMPDIR/$BUILDDIR/$1
+
+    if [ -f "$LICENSE_FILE" ]; then
+        logmsg "Using $LICENSE_FILE as package license"
+        logcmd cp $LICENSE_FILE $DESTDIR/license
+    else
+        logerr "-- $LICENSE_FILE not found!"
+        exit 255
+    fi
+}
 
 link_up_gnu_sfw() {
     logmsg "Making links in /usr/gnu and /usr/sfw"
@@ -62,6 +75,7 @@ download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
+install_license COPYING
 make_isa_stub
 strip_install
 link_up_gnu_sfw

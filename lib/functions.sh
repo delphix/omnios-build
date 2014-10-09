@@ -479,7 +479,7 @@ get_resource() {
             logcmd cp $MIRROR/$RESOURCE .
             ;;
         *)
-            URLPREFIX=http://$MIRROR
+            URLPREFIX=$MIRROR
             $WGET -a $LOGFILE $URLPREFIX/$RESOURCE
             ;;
     esac
@@ -516,16 +516,21 @@ download_source() {
         logmsg "Specified target directory $TARGETDIR does not exist.  Creating it now."
         logcmd mkdir -p $TARGETDIR
     fi
+
     pushd $TARGETDIR > /dev/null
     logmsg "Checking for source directory"
     if [ -d $BUILDDIR ]; then
         logmsg "--- Source directory found"
-        if check_for_patches "to see if we need to remove the source dir"; then
+        if [ -n "$REMOVE_PREVIOUS" ]; then
+            logmsg "--- Removing previously extracted source directory (REMOVE_PREVIOUS=$REMOVE_PREVIOUS)"
+            logcmd rm -rf $BUILDDIR || \
+                logerr "Failed to remove source directory"
+        elif check_for_patches "to see if we need to remove the source dir"; then
             logmsg "--- Patches are present, removing source directory"
             logcmd rm -rf $BUILDDIR || \
                 logerr "Failed to remove source directory"
         else
-            logmsg "--- Patches are not present, keeping source directory"
+            logmsg "--- Patches are not present and REMOVE_PREVIOUS is not set, keeping source directory"
             popd > /dev/null
             return
         fi
@@ -627,12 +632,15 @@ make_package() {
         DESCSTR="$DESCSTR ($FLAVOR)"
     fi
     PKGSEND=/usr/bin/pkgsend
-    PKGDEPEND=/usr/bin/pkgdepend
     PKGLINT=/usr/bin/pkglint
     PKGMOGRIFY=/usr/bin/pkgmogrify
     PKGFMT=/usr/bin/pkgfmt
+    PKGDEPEND=/usr/bin/pkgdepend
     P5M_INT=$TMPDIR/${PKGE}.p5m.int
+    P5M_INT2=$TMPDIR/${PKGE}.p5m.int.2
+    P5M_INT3=$TMPDIR/${PKGE}.p5m.int.3
     P5M_FINAL=$TMPDIR/${PKGE}.p5m
+    MANUAL_DEPS=$TMPDIR/${PKGE}.deps.mog
     GLOBAL_MOG_FILE=$MYDIR/global-transforms.mog
     MY_MOG_FILE=$TMPDIR/${PKGE}.mog
 
@@ -670,15 +678,67 @@ make_package() {
     logmsg "--- Applying transforms"
     $PKGMOGRIFY -DVER="$VER" -DPROG="$PROG" -DPKG="$PKG" \
         $P5M_INT $MY_MOG_FILE $GLOBAL_MOG_FILE $LOCAL_MOG_FILE $* | \
-        $PKGFMT -u > $P5M_FINAL.t
-    logmsg "--- Generating dependencies"
-    $PKGDEPEND generate -m -d $DESTDIR $P5M_FINAL.t > $P5M_FINAL.d || \
-        logerr "----- pkgdepend generate failed"
-    $PKGDEPEND resolve -m $P5M_FINAL.d || \
-        logerr "----- pkgdepend resolve failed"
-    # Strip the OS version, etc from the fmris.
-    sed -E '/^depend fmri/ s/@([^ :,-]*)[^ ]*/@\1/' $P5M_FINAL.d.res >$P5M_FINAL
-
+        $PKGFMT -u > $P5M_INT2
+    logmsg "--- Resolving dependencies"
+    (
+        set -e
+        $PKGDEPEND generate -md $DESTDIR $P5M_INT2 > $P5M_INT3
+        $PKGDEPEND resolve -m $P5M_INT3
+        # Strip the OS version, etc from the fmris.
+        sed -i -E '/^depend fmri/ s/@([^ :,-]*)[^ ]*/@\1/' $P5M_INT3.res
+    ) || logerr "--- Dependency resolution failed"
+    echo > "$MANUAL_DEPS"
+    if [[ -n "$RUN_DEPENDS_IPS" ]]; then
+        logmsg "------ Adding manual dependencies"
+        for i in $RUN_DEPENDS_IPS; do
+            # IPS dependencies have multiple types, of which we care about four:
+            #    require, optional, incorporate, exclude
+            # For backward compatibility, assume no indicator means type=require
+            # FMRI attributes are implicitly rooted so we don't have to prefix
+            # 'pkg:/' or worry about ambiguities in names
+            local DEPTYPE="require"
+            case ${i:0:1} in
+                \=)
+                    DEPTYPE="incorporate"
+                    i=${i:1}
+                    ;;
+                \?)
+                    DEPTYPE="optional"
+                    i=${i:1}
+                    ;;
+                \-)
+                    DEPTYPE="exclude"
+                    i=${i:1}
+                    ;;
+            esac
+            case $i in
+                *@*)
+                    depname=${i%@*}
+                    explicit_ver=true
+                    ;;
+                *)
+                    depname=$i
+                    explicit_ver=false
+                    ;;
+            esac
+            # ugly grep, but pkgmogrify doesn't seem to provide any way to add
+            # actions while avoiding duplicates (except maybe by running it
+            # twice, using drop transform on the first run)
+            if grep -q "^depend .*fmri=[^ ]*$depname" "${P5M_INT3}.res"; then
+                autoresolved=true
+            else
+                autoresolved=false
+            fi
+            if $autoresolved && [ "$DEPTYPE" = "require" ]; then
+                if $explicit_ver; then
+                    echo "<transform depend fmri=(.+/)?$depname -> set fmri $i>" >> $MANUAL_DEPS
+                fi
+            else
+                echo "depend type=$DEPTYPE fmri=$i" >> $MANUAL_DEPS
+            fi
+        done
+    fi
+    $PKGMOGRIFY "${P5M_INT3}.res" "$MANUAL_DEPS" | $PKGFMT -u > $P5M_FINAL
     if [[ -z $SKIP_PKGLINT ]] && ( [[ -n $BATCH ]] ||  ask_to_pkglint ); then
         $PKGLINT -c $TMPDIR/lint-cache -r $PKGSRVR $P5M_FINAL || \
             logerr "----- pkglint failed"
@@ -1107,7 +1167,7 @@ clean_up() {
         logcmd rm -rf $DESTDIR || \
             logerr "Failed to remove temporary install directory"
         logmsg "--- Cleaning up temporary manifest and transform files"
-        logcmd rm -f $P5M_INT $P5M_FINAL{,.d,.t,.d.res} $MY_MOG_FILE || \
+        logcmd rm -f $P5M_INT $P5M_INT2 $P5M_INT3 $P5M_FINAL $MY_MOG_FILE $MANUAL_DEPS || \
             logerr "Failed to remove temporary manifest and transform files"
         logmsg "Done."
     fi
@@ -1121,6 +1181,35 @@ save_function() {
     local ORIG_FUNC=$(declare -f $1)
     local NEWNAME_FUNC="$2${ORIG_FUNC#$1}"
     eval "$NEWNAME_FUNC"
+}
+
+# Called by builds that need a PREBUILT_ILLUMOS actually finished.
+wait_for_prebuilt() {
+    if [ ! -d ${PREBUILT_ILLUMOS:-/dev/null} ]; then
+	echo "wait_for_prebuilt() called w/o PREBUILT_ILLUMOS. Bailing."
+	clean_up
+	exit 1
+    fi
+
+    # -h means symbolic link. That's what nightly does.
+    if [ ! -h $PREBUILT_ILLUMOS/log/nightly.lock ]; then
+	return
+    fi
+
+    # NOTE -> if the nightly finishes between the above check and now, we
+    # can produce confusing output since nightly_pid will be empty.
+    nightly_pid=`ls -lt $PREBUILT_ILLUMOS/log/nightly.lock | awk -F. '{print $4}'`
+    # Wait for nightly to be finished if it's running.
+    logmsg "Waiting for illumos nightly build $nightly_pid to be finished."
+    pwait $nightly_pid
+    if [ -h $PREBUILT_ILLUMOS/log/nightly.lock ]; then
+        logmsg "Nightly lock present, but build not running.  Bailing."
+        if [[ -z $BATCH ]]; then
+            ask_to_continue
+        fi
+        clean_up
+        exit 1
+    fi
 }
 
 # Vim hints

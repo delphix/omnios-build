@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=tmux
-VER=1.8
+VER=1.9a
 VERHUMAN=$VER
 PKG=terminal/tmux
 SUMMARY="terminal multiplexer"
@@ -66,6 +66,7 @@ prep_build
 build
 make_isa_stub
 strip_install
+VER=${VER//a/.0}
 make_package
 clean_up
 
