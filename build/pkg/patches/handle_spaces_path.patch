@@ -1,0 +1,148 @@
+--- pkg-omni/pkg/src/modules/actions/generic.py
++++ pkg-omni/pkg/src/modules/actions/generic.py
+@@ -354,7 +354,8 @@ class Action(object):
+ 
+                 out = self.name
+                 if hasattr(self, "hash") and self.hash is not None:
+-                        if "=" not in self.hash:
++                        if "=" not in self.hash and " " not in self.hash and \
++                            '"' not in self.hash:
+                                 out += " " + self.hash
+                         else:
+                                 self.attrs["hash"] = self.hash
+--- pkg-omni/pkg/src/modules/manifest.py
++++ pkg-omni/pkg/src/modules/manifest.py
+@@ -40,6 +40,7 @@ import pkg.version as version
+ 
+ from pkg.misc import EmptyDict, EmptyI, expanddirs, PKG_FILE_MODE, PKG_DIR_MODE
+ from pkg.actions.attribute import AttributeAction
++from pkg.actions.directory import DirectoryAction
+ 
+ ManifestDifference = namedtuple("ManifestDifference", "added changed removed")
+ 
+@@ -278,9 +279,8 @@ class Manifest(object):
+                 dirs = self._actions_to_dict(gen_references)
+                 for d in dirs:
+                         for v in dirs[d]:
+-                                yield "dir path=%s %s\n" % \
+-                                    (d, " ".join("%s=%s" % t \
+-                                    for t in v.iteritems()))
++                                a = DirectoryAction(path=d, **v)
++                                yield str(a) + "\n"
+ 
+         def _gen_mediators_to_str(self):
+                 """Generate contents of mediatorcache file containing all
+@@ -1029,23 +1029,39 @@ class FactoredManifest(Manifest):
+                 """
+ 
+                 mpath = self.__cache_path(name)
+-                if not os.path.exists(mpath):
+-                        # no cached copy
+-                        if not self.loaded:
+-                                # need to load from disk
+-                                self.__load()
+-                        assert self.loaded
+-                        return
++                if os.path.exists(mpath):
++                        # we have cached copy on disk; use it
++                        try:
++                                with open(mpath, "rb") as f:
++                                        self._cache[name] = [
++                                            a for a in
++                                            (
++                                                actions.fromstr(s.rstrip())
++                                                for s in f
++                                            )
++                                            if not self.excludes or
++                                                a.include_this(self.excludes)
++                                        ]
++                                return
++                        except EnvironmentError, e:
++                                raise apx._convert_error(e)
++                        except actions.ActionError, e:
++                                # Cache file is malformed; hopefully due to bugs
++                                # that have been resolved (as opposed to actual
++                                # corruption).  Assume we should just ignore the
++                                # cache and load action data.
++                                try:
++                                        self.clear_cache(self.__cache_root)
++                                except Exception, e:
++                                        # Ignore errors encountered during cache
++                                        # dump for this specific case.
++                                        pass
+ 
+-                # we have cached copy on disk; use it
+-                try:
+-                        with open(mpath, "rb") as f:
+-                                self._cache[name] = [
+-                                    actions.fromstr(s.strip())
+-                                    for s in f
+-                                ]
+-                except EnvironmentError, e:
+-                        raise apx._convert_error(e)
++                # no cached copy
++                if not self.loaded:
++                        # need to load from disk
++                        self.__load()
++                assert self.loaded
+ 
+         def get_directories(self, excludes):
+                 """ return a list of directories implicitly or explicitly
+--- pkg-omni/pkg/src/util/publish/pkgfmt.py
++++ pkg-omni/pkg/src/util/publish/pkgfmt.py
+@@ -53,6 +53,7 @@ DRIVER_ALIAS_PREFIXES = (
+ 
+ try:
+         import cStringIO
++        import copy
+         import errno
+         import getopt
+         import gettext
+@@ -290,8 +291,21 @@ def write_line(line, fileobj):
+         act = line[0]
+         out = line[1] + act.name
+ 
+-        if hasattr(act, "hash") and act.hash != "NOHASH":
+-                out += " " + act.hash
++        sattrs = act.attrs
++        ahash = None
++        try:
++                ahash = act.hash
++                if ahash and ahash != "NOHASH":
++                        if "=" not in ahash and " " not in ahash and \
++                            '"' not in ahash:
++                                out += " " + ahash
++                        else:
++                                sattrs = copy.copy(act.attrs)
++                                sattrs["hash"] = ahash
++                                ahash = None
++        except AttributeError:
++                # No hash to stash.
++                pass
+ 
+         # high order bits in sorting
+         def kvord(a):
+@@ -425,11 +439,11 @@ def write_line(line, fileobj):
+                 rem_attr_count = 0
+ 
+                 # Total number of remaining attribute values to output.
+-                total_count = sum(len(act.attrlist(k)) for k in act.attrs)
++                total_count = sum(len(act.attrlist(k)) for k in sattrs)
+                 rem_count = total_count
+ 
+                 # Now build the action output string an attribute at a time.
+-                for k, v in sorted(act.attrs.iteritems(), cmp=cmpkv):
++                for k, v in sorted(sattrs.iteritems(), cmp=cmpkv):
+                         # Newline breaks are only forced when there is more than
+                         # one value for an attribute.
+                         if not (isinstance(v, list) or isinstance(v, set)):
+@@ -456,8 +470,7 @@ def write_line(line, fileobj):
+                                         first_line = False
+                                         first_attr_count = \
+                                             (total_count - rem_count)
+-                                        if hasattr(act, "hash") and \
+-                                            act.hash != "NOHASH":
++                                        if ahash and ahash != "NOHASH":
+                                                 first_attr_count += 1
+                                         rem_attr_count = rem_count
+ 

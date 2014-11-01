@@ -118,6 +118,7 @@ package(){
 
 init
 clone_source
+patch_source
 # This is hugely expensive
 # We've committed these files to pkg, but they need to be kept up to date
 #crib_headers
