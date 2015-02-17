@@ -24,19 +24,19 @@
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
-#
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=postgresql
 VER=9.4.1
 VERHUMAN=$VER
-PKG=omniti/database/postgresql-941/vacuumlo
+PKG=omniti/database/postgresql-941/pg_upgrade
 DOWNLOADDIR=postgres
-MODULE=vacuumlo
+MODULE=pg_upgrade
+SUPPORT_MODULE=pg_upgrade_support
 CONTRIBDIR=contrib/$MODULE
-SUMMARY="$PROG $MODULE - Large Object Garbage Collection for PostgreSQL $VER"
+CONTRIB_SUPPORTDIR=contrib/$SUPPORT_MODULE
+SUMMARY="$PROG $MODULE - Upgrade PostgreSQL data files without dump/reload for PostgreSQL $VER"
 DESC="$SUMMARY"
 
 BUILDARCH=64
@@ -55,14 +55,18 @@ CONFIGURE_OPTS="--enable-thread-safety
 CONFIGURE_OPTS_64=""
 
 make_prog() {
+    [[ -n $NO_PARALLEL_MAKE ]] && MAKE_JOBS=""
     logmsg "--- make"
-    make_in .
+    logcmd $MAKE $MAKE_JOBS || \
+        logerr "--- Make failed"
     make_in $CONTRIBDIR
+    make_in $CONTRIB_SUPPORTDIR
 }
 
 make_install() {
     logmsg "--- make install"
     make_install_in $CONTRIBDIR
+    make_install_in $CONTRIB_SUPPORTDIR
 }
 
 init

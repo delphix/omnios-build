@@ -28,9 +28,9 @@
 . ../../lib/functions.sh
 
 PROG=postgresql
-VER=9.4.0
+VER=9.4.1
 VERHUMAN=$VER
-PKG=omniti/database/postgresql-940
+PKG=omniti/database/postgresql-941
 SUMMARY="$PROG - Open Source Database System"
 DESC="$SUMMARY"
 

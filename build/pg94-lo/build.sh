@@ -30,9 +30,9 @@
 . ../../lib/functions.sh
 
 PROG=postgresql
-VER=9.4.0
+VER=9.4.1
 VERHUMAN=$VER
-PKG=omniti/database/postgresql-940/lo
+PKG=omniti/database/postgresql-941/lo
 DOWNLOADDIR=postgres
 MODULE=lo
 CONTRIBDIR=contrib/$MODULE
