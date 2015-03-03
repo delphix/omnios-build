@@ -24,26 +24,37 @@
 # Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-# Copyright (c) 2014 by Delphix. All rights reserved.
+# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=fio        # App name
-VER=2.1.10      # App version
+VER=2.1.14      # App version
 VERHUMAN=$VER   # Human-readable version
 #PVER=          # Branch (set in config.sh, override here if needed)
 PKG=benchmark/fio # Package name (e.g. library/foo)
 SUMMARY="Flexible IO Tester" # One-liner, must be filled in
 DESC="Flexible IO Tester" # Longer description, must be filled in
 PATH=/usr/gnu/bin:$PATH # The source will only unpack using GNU tar
+NOSCRIPTSTUB=1  # Don't make isa wrappers for scripts
 
 BUILD_DEPENDS_IPS=
 RUN_DEPENDS_IPS=
 
 CONFIGURE_OPTS=
 CONFIGURE_OPTS_32=
-CONFIGURE_OPTS_64=
+CONFIGURE_OPTS_64="--extra-cflags=-m64"
+
+make_install32() {
+	logcmd $MAKE DESTDIR=${DESTDIR} bindir="/usr/bin/i386" install || \
+	    logerr "--- Make install failed"
+}
+
+make_install64() {
+	logcmd $MAKE DESTDIR=${DESTDIR} bindir="/usr/bin/amd64" install || \
+	    logerr "--- Make install failed"
+}
 
 init
 download_source $PROG $PROG $VER
