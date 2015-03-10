@@ -20,7 +20,7 @@
 #
 
 #
-# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
+# Copyright (c) 2015 by Delphix. All rights reserved.
 #
 
 set name=info.classification value=org.opensolaris.category.2008:Development/Java
@@ -30,14 +30,14 @@ set name=info.classification value=org.opensolaris.category.2008:Development/Jav
 # adding pkg.linted.pkglint.dupaction007=true. This workaround can be reverted
 # when we upgrade to a newer version of IPS that has the fix.
 #
-link path=opt/jdk target=jdk1.7.0_$(VER) mediator=jdk mediator-version=1.7 mediator-priority=vendor pkg.linted.pkglint.dupaction007=true
-license opt/jdk1.7.0_$(VER)/LICENSE license="BCL"
+link path=opt/jdk target=jdk1.8.0_$(VER) mediator=jdk mediator-version=1.8 pkg.linted.pkglint.dupaction007=true
+license opt/jdk1.8.0_$(VER)/LICENSE license="BCL"
 
 #
 # pkgdepend has difficulties finding libjvm.so and libjava.so even though we
 # are installing it here. We tell it not to generate a dependency on either.
 #
-<transform file path=opt/jdk1.7.0_$(VER)/* -> \
-  add pkg.depend.bypass-generate libjvm.so>
-<transform file path=opt/jdk1.7.0_$(VER)/* -> \
-  add pkg.depend.bypass-generate libjava.so>
+<transform file path=opt/jdk1.8.0_$(VER)/* -> \
+    add pkg.depend.bypass-generate libjvm.so>
+<transform file path=opt/jdk1.8.0_$(VER)/* -> \
+    add pkg.depend.bypass-generate libjava.so>
