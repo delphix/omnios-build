@@ -30,7 +30,7 @@ set name=info.classification value=org.opensolaris.category.2008:Development/Jav
 # adding pkg.linted.pkglint.dupaction007=true. This workaround can be reverted
 # when we upgrade to a newer version of IPS that has the fix.
 #
-link path=opt/jdk target=jdk1.7.0_$(VER) mediator=jdk mediator-version=1.7 mediator-priority=vendor pkg.linted.pkglint.dupaction007=true
+link path=opt/jdk target=jdk1.7.0_$(VER) mediator=jdk mediator-version=1.7 pkg.linted.pkglint.dupaction007=true
 license opt/jdk1.7.0_$(VER)/LICENSE license="BCL"
 
 #
