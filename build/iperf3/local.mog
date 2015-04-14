@@ -1,1 +1,2 @@
 license COPYING license="Other Open Source"
+set name=info.classification value=org.opensolaris.category.2008:System/Services

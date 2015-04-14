@@ -1,0 +1,7 @@
+0001-Build-changes-to-avoid-building-libiperf-examples-etc.patch
+0002-Flush-stdout-after-printing-banner.patch
+0003-Disable-daemon-mode.patch
+0004-Ignore-setsockopt-SND-RCVBUF-failure.patch
+0005-Static-version.h-config.h-files-for-HPUX.patch
+0006-Multiple-fixes-for-building-on-various-platforms.patch
+0007-Fix-Signal-Handling.patch

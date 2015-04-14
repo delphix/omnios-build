@@ -1,0 +1,50 @@
+diff --git a/src/iperf.h b/src/iperf.h
+index 5f7520b..eee3d63 100644
+--- a/src/iperf.h
++++ b/src/iperf.h
+@@ -36,6 +36,17 @@
+ #include "queue.h"
+ #include "cjson.h"
+ 
++/*
++ * Missing library routine daemon(): libc on some platforms do not
++ * support the daemon() library call. Since Delphix does not make use
++ * of this functionality, this option is not supported on these
++ * platforms. An alternative would have been to supply the code for
++ * this routine.
++ */
++#if defined(_AIX) || defined(__hpux)
++#define NO_IPERF_DAEMON
++#endif
++
+ typedef uint64_t iperf_size_t;
+ 
+ struct iperf_interval_results
+diff --git a/src/main.c b/src/main.c
+index 2d40d9d..f77b497 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -120,11 +120,18 @@ run(struct iperf_test *test)
+     switch (test->role) {
+         case 's':
+ 	    if (test->daemon) {
+-		int rc = daemon(0, 0);
+-		if (rc < 0) {
+-		    i_errno = IEDAEMON;
+-		    iperf_errexit(test, "error - %s", iperf_strerror(i_errno));
+-		}
++#ifdef NO_IPERF_DAEMON
++                /* no support for daemon() library call; bail out */
++                i_errno = IEDAEMON;
++                iperf_errexit(test, "error - %s not supported on this platform",
++		    iperf_strerror(i_errno));
++#else
++                int rc = daemon(0, 0);
++                if (rc < 0) {
++                    i_errno = IEDAEMON;
++                    iperf_errexit(test, "error - %s", iperf_strerror(i_errno));
++                }
++#endif
+ 	    }
+ 	    consecutive_errors = 0;
+             for (;;) {

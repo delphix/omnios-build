@@ -1,0 +1,179 @@
+diff --git a/ChangeLog b/ChangeLog
+new file mode 100644
+index 0000000..e69de29
+diff --git a/NEWS b/NEWS
+new file mode 100644
+index 0000000..e69de29
+diff --git a/README b/README
+new file mode 100644
+index 0000000..e69de29
+diff --git a/src/iperf.h b/src/iperf.h
+index eee3d63..9104894 100644
+--- a/src/iperf.h
++++ b/src/iperf.h
+@@ -47,6 +47,14 @@
+ #define NO_IPERF_DAEMON
+ #endif
+ 
++/*
++ * On AIX, the preprocessor has difficulty expanding the LIST
++ * macros. As an easy workaround, the macros are expanded by hand.
++ */
++#if defined(_AIX)
++#define WIERD_PREPROCESSOR
++#endif
++
+ typedef uint64_t iperf_size_t;
+ 
+ struct iperf_interval_results
+@@ -157,8 +165,9 @@ struct iperf_stream
+     int       (*rcv2) (struct iperf_stream * stream);
+     int       (*snd2) (struct iperf_stream * stream);
+ 
+-//    struct iperf_stream *next;
+-    SLIST_ENTRY(iperf_stream) streams;
++//  struct iperf_stream;
++//  SLIST_ENTRY(iperf_stream) streams;
++    struct { struct iperf_stream *sle_next; } streams;
+ 
+     void     *data;
+ };
+@@ -172,7 +181,11 @@ struct protocol {
+     int       (*send)(struct iperf_stream *);
+     int       (*recv)(struct iperf_stream *);
+     int       (*init)(struct iperf_test *);
+-    SLIST_ENTRY(protocol) protocols;
++//  SLIST_ENTRY(protocol) protocols;
++    struct {
++        struct protocol *sle_next;
++    } protocols;
++
+ };
+ 
+ struct iperf_textline {
+@@ -239,11 +252,14 @@ struct iperf_test
+     iperf_size_t bytes_sent;
+     int       blocks_sent;
+     char      cookie[COOKIE_SIZE];
+-//    struct iperf_stream *streams;               /* pointer to list of struct stream */
+-    SLIST_HEAD(slisthead, iperf_stream) streams;
++//  struct iperf_stream *streams;               /* pointer to list of struct stream */
++//  SLIST_HEAD(slisthead, iperf_stream) streams;
++    struct slisthead { struct iperf_stream  *slh_first; } streams;
++
+     struct iperf_settings *settings;
+ 
+-    SLIST_HEAD(plisthead, protocol) protocols;
++//  SLIST_HEAD(plisthead, protocol) protocols;
++    struct plisthead { struct protocol  *slh_first; } protocols;
+ 
+     /* callback functions */
+     void      (*on_new_stream)(struct iperf_stream *);
+diff --git a/src/iperf_api.c b/src/iperf_api.c
+index 3f71e20..c01c237 100644
+--- a/src/iperf_api.c
++++ b/src/iperf_api.c
+@@ -2333,7 +2333,11 @@ iperf_new_stream(struct iperf_test *test, int s)
+ {
+     int i;
+     struct iperf_stream *sp;
++#if defined(__CYGWIN__)
++    char template[] = "./iperf3.XXXXXX";
++#else
+     char template[] = "/tmp/iperf3.XXXXXX";
++#endif
+ 
+     h_errno = 0;
+ 
+diff --git a/src/iperf_api.h b/src/iperf_api.h
+index c019a31..12defdb 100644
+--- a/src/iperf_api.h
++++ b/src/iperf_api.h
+@@ -243,8 +243,15 @@ int iperf_setaffinity(int affinity);
+ int iperf_clearaffinity(void);
+ 
+ /* Custom printf routine. */
++#if defined(__CYGWIN__)
++/*
++ * To prevent nameclash of iprintf(), #define it as iperf_printf(). 
++ */
++int iperf_printf(struct iperf_test *test, const char *format, ...) __attribute__ ((format(printf,2,3)));
++#define iprintf iperf_printf
++#else
+ int iprintf(struct iperf_test *test, const char *format, ...) __attribute__ ((format(printf,2,3)));
+-
++#endif
+ 
+ /* Error routines. */
+ void iperf_err(struct iperf_test *test, const char *format, ...) __attribute__ ((format(printf,2,3)));
+diff --git a/src/iperf_error.c b/src/iperf_error.c
+index 1b896e0..0b085eb 100644
+--- a/src/iperf_error.c
++++ b/src/iperf_error.c
+@@ -33,6 +33,16 @@
+ #include "iperf.h"
+ #include "iperf_api.h"
+ 
++#if defined(__hpux)
++const char *
++hstrerror (int herr)
++{
++    static char buf[100];
++    sprintf (buf, "Host lookup error %d", herr);
++    return buf;
++}
++#endif
++
+ /* Do a printf to stderr. */
+ void
+ iperf_err(struct iperf_test *test, const char *format, ...)
+diff --git a/src/main.c b/src/main.c
+index 82e8b6c..170313b 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -28,6 +28,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <fcntl.h>
+ #include <getopt.h>
+ #include <errno.h>
+ #include <signal.h>
+@@ -50,7 +51,6 @@
+ 
+ static int run(struct iperf_test *test);
+ 
+-
+ /**************************************************************************/
+ int
+ main(int argc, char **argv)
+diff --git a/src/net.c b/src/net.c
+index e6b0c59..8dbc2df 100644
+--- a/src/net.c
++++ b/src/net.c
+@@ -36,7 +36,8 @@
+ #include <assert.h>
+ #include <netdb.h>
+ #include <string.h>
+-#include <sys/fcntl.h>
++#include <fcntl.h>
++#include <sys/time.h>
+ 
+ #ifdef linux
+ #include <sys/sendfile.h>
+diff --git a/src/tcp_info.c b/src/tcp_info.c
+index 0c94d1e..df2b866 100644
+--- a/src/tcp_info.c
++++ b/src/tcp_info.c
+@@ -46,7 +46,11 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <sys/param.h>
++#if defined(__hpux)
++#include "queue.h"
++#else
+ #include <sys/queue.h>
++#endif
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/tcp.h>

@@ -1,0 +1,22 @@
+diff --git a/src/iperf_server_api.c b/src/iperf_server_api.c
+index e072ea1..76c77fb 100644
+--- a/src/iperf_server_api.c
++++ b/src/iperf_server_api.c
+@@ -112,9 +112,16 @@ iperf_server_listen(struct iperf_test *test)
+         }
+     }
+     */
+-    if (!test->json_output)
++    if (!test->json_output) {
+ 	iprintf(test, "-----------------------------------------------------------\n");
+ 
++	/*
++	 * The banner printed is buffered. We flush it out to ensure
++	 * that it makes it to stdout.
++	 */
++	fflush(stdout);
++    }
++
+     FD_ZERO(&test->read_set);
+     FD_ZERO(&test->write_set);
+     FD_SET(test->listener, &test->read_set);

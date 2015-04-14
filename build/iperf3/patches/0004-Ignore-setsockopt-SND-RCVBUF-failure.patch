@@ -1,0 +1,65 @@
+diff --git a/src/iperf_tcp.c b/src/iperf_tcp.c
+index 89752d8..46f47f9 100644
+--- a/src/iperf_tcp.c
++++ b/src/iperf_tcp.c
+@@ -205,21 +205,15 @@ iperf_tcp_listen(struct iperf_test *test)
+             }
+         }
+         if ((opt = test->settings->socket_bufsize)) {
++            /*
++             * Setting SO_SNDBUF of 4MB fails on AIX 5.3, Solarix 10
++             * etc. Ignore this failure as iperf2 does.
++             */
+             if (setsockopt(s, SOL_SOCKET, SO_RCVBUF, &opt, sizeof(opt)) < 0) {
+-		saved_errno = errno;
+-		close(s);
+-		freeaddrinfo(res);
+-		errno = saved_errno;
+-                i_errno = IESETBUF;
+-                return -1;
++                iperf_err(test, "error - %s", iperf_strerror(IESETBUF));
+             }
+             if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, &opt, sizeof(opt)) < 0) {
+-		saved_errno = errno;
+-		close(s);
+-		freeaddrinfo(res);
+-		errno = saved_errno;
+-                i_errno = IESETBUF;
+-                return -1;
++                iperf_err(test, "error - %s", iperf_strerror(IESETBUF));
+             }
+         }
+ #if defined(linux) && defined(TCP_CONGESTION)
+@@ -365,22 +359,16 @@ iperf_tcp_connect(struct iperf_test *test)
+         }
+     }
+     if ((opt = test->settings->socket_bufsize)) {
+-        if (setsockopt(s, SOL_SOCKET, SO_RCVBUF, &opt, sizeof(opt)) < 0) {
+-	    saved_errno = errno;
+-	    close(s);
+-	    freeaddrinfo(server_res);
+-	    errno = saved_errno;
+-            i_errno = IESETBUF;
+-            return -1;
+-        }
+-        if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, &opt, sizeof(opt)) < 0) {
+-	    saved_errno = errno;
+-	    close(s);
+-	    freeaddrinfo(server_res);
+-	    errno = saved_errno;
+-            i_errno = IESETBUF;
+-            return -1;
+-        }
++	/*
++	 * Setting SO_SNDBUF of 4MB fails on AIX 5.3, Solarix 10
++	 * etc. Ignore this failure as iperf2 does.
++	 */
++	if (setsockopt(s, SOL_SOCKET, SO_RCVBUF, &opt, sizeof(opt)) < 0) {
++	    iperf_err(test, "error - %s", iperf_strerror(IESETBUF));
++	}
++	if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, &opt, sizeof(opt)) < 0) {
++	    iperf_err(test, "error - %s", iperf_strerror(IESETBUF));
++	}
+     }
+ #if defined(linux)
+     if (test->settings->flowlabel) {

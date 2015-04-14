@@ -1,0 +1,339 @@
+diff --git a/COPYING b/COPYING
+new file mode 120000
+index 0000000..7a694c9
+--- /dev/null
++++ b/COPYING
+@@ -0,0 +1 @@
++LICENSE
+\ No newline at end of file
+diff --git a/Makefile.am b/Makefile.am
+index f0ad1ee..af437a6 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1 +1 @@
+-SUBDIRS = src examples
++SUBDIRS = src
+diff --git a/Makefile.in b/Makefile.in
+index 2891618..c4ff39d 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -311,7 +311,7 @@ target_alias = @target_alias@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-SUBDIRS = src examples
++SUBDIRS = src
+ all: all-recursive
+ 
+ .SUFFIXES:
+diff --git a/configure b/configure
+index c181051..cd49c6b 100755
+--- a/configure
++++ b/configure
+@@ -12240,7 +12240,7 @@ $as_echo "#define const /**/" >>confdefs.h
+ fi
+ 
+ 
+-ac_config_files="$ac_config_files Makefile src/Makefile src/version.h examples/Makefile iperf3.spec"
++ac_config_files="$ac_config_files Makefile src/Makefile src/version.h iperf3.spec"
+ 
+ cat >confcache <<\_ACEOF
+ # This file is a shell script that caches the results of configure
+@@ -13262,7 +13262,6 @@ do
+     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+     "src/version.h") CONFIG_FILES="$CONFIG_FILES src/version.h" ;;
+-    "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
+     "iperf3.spec") CONFIG_FILES="$CONFIG_FILES iperf3.spec" ;;
+ 
+   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
+diff --git a/configure.ac b/configure.ac
+index de0f8ab..c1ce75a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -77,4 +77,4 @@ exit 1
+ # Checks for typedefs, structures, and compiler characteristics.
+ AC_C_CONST
+ 
+-AC_OUTPUT([Makefile src/Makefile src/version.h examples/Makefile iperf3.spec])
++AC_OUTPUT([Makefile src/Makefile src/version.h iperf3.spec])
+diff --git a/iperf3.spec.in b/iperf3.spec.in
+index 7276a44..901aa93 100644
+--- a/iperf3.spec.in
++++ b/iperf3.spec.in
+@@ -47,15 +47,12 @@ rm -rf $RPM_BUILD_ROOT
+ %defattr(-,root,root,-)
+ %doc AUTHORS INSTALL
+ %{_mandir}/man1/iperf3.1.gz
+-%{_mandir}/man3/libiperf.3.gz
+ %{_bindir}/iperf3
+ %{_libdir}/*.so.*
+ 
+ %files devel
+ %defattr(-,root,root,-)
+ %{_includedir}/iperf_api.h
+-%{_libdir}/libiperf.a
+-%{_libdir}/libiperf.la
+ %{_libdir}/*.so
+ %{_libdir}/*.so.*
+ 
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 665cd0a..ada7620 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -1,11 +1,9 @@
+-lib_LTLIBRARIES         = libiperf.la                                   # Build and install an iperf library
+ bin_PROGRAMS            = iperf3                                        # Build and install an iperf binary
+-noinst_PROGRAMS         = t_timer t_units t_uuid iperf3_profile         # Build, but don't install the test programs and a profiled version of iperf3
+-include_HEADERS         = iperf_api.h # Defines the headers that get installed with the program
+ 
+ 
+-# Specify the source files and flags for the iperf library
+-libiperf_la_SOURCES     = \
++# Specify the sources and various flags for the iperf binary
++iperf3_SOURCES          = \
++                        main.c \
+                         cjson.c \
+                         cjson.h \
+                         flowlabel.h \
+@@ -34,45 +32,8 @@ libiperf_la_SOURCES     = \
+                         units.c \
+                         units.h \
+                         version.h
+-
+-# Specify the sources and various flags for the iperf binary
+-iperf3_SOURCES          = main.c
+ iperf3_CFLAGS           = -g
+-iperf3_LDADD            = libiperf.la
++iperf3_LDADD            = libnsl
+ iperf3_LDFLAGS          = -g
+ 
+-# Specify the sources and various flags for the profiled iperf binary. This
+-# binary recompiles all the source files to make sure they are all profiled.
+-iperf3_profile_SOURCES  = main.c \
+-						  $(libiperf_la_SOURCES)
+-
+-iperf3_profile_CFLAGS   = -pg -g
+-iperf3_profile_LDADD    = libiperf.la
+-iperf3_profile_LDFLAGS  = -pg -g
+-
+-# Specify the sources and various flags for the test cases
+-t_timer_SOURCES         = t_timer.c
+-t_timer_CFLAGS          = -g
+-t_timer_LDFLAGS         =
+-t_timer_LDADD           = libiperf.la
+-
+-t_units_SOURCES         = t_units.c
+-t_units_CFLAGS          = -g
+-t_units_LDFLAGS         =
+-t_units_LDADD           = libiperf.la
+-
+-t_uuid_SOURCES          = t_uuid.c
+-t_uuid_CFLAGS           = -g
+-t_uuid_LDFLAGS          =
+-t_uuid_LDADD            = libiperf.la
+-
+-
+-
+-
+-# Specify which tests to run during a "make check"
+-TESTS                   = \
+-                        t_timer \
+-                        t_units \
+-                        t_uuid
+-
+-dist_man_MANS          = iperf3.1 libiperf.3
++dist_man_MANS          = iperf3.1
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 7eba555..33308a4 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -81,9 +81,6 @@ POST_UNINSTALL = :
+ build_triplet = @build@
+ host_triplet = @host@
+ bin_PROGRAMS = iperf3$(EXEEXT)
+-noinst_PROGRAMS = t_timer$(EXEEXT) t_units$(EXEEXT) t_uuid$(EXEEXT) \
+-	iperf3_profile$(EXEEXT)
+-TESTS = t_timer$(EXEEXT) t_units$(EXEEXT) t_uuid$(EXEEXT)
+ subdir = src
+ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+ 	$(srcdir)/config.h.in $(top_srcdir)/config/mkinstalldirs \
+@@ -128,21 +125,16 @@ am__uninstall_files_from_dir = { \
+ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
+ 	"$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man3dir)" \
+ 	"$(DESTDIR)$(includedir)"
+-LTLIBRARIES = $(lib_LTLIBRARIES)
+-libiperf_la_LIBADD =
+-am_libiperf_la_OBJECTS = cjson.lo iperf_api.lo iperf_error.lo \
+-	iperf_client_api.lo iperf_locale.lo iperf_server_api.lo \
+-	iperf_tcp.lo iperf_udp.lo iperf_util.lo net.lo tcp_info.lo \
+-	tcp_window_size.lo timer.lo units.lo
+-libiperf_la_OBJECTS = $(am_libiperf_la_OBJECTS)
+ AM_V_lt = $(am__v_lt_@AM_V@)
+ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+ am__v_lt_0 = --silent
+ am__v_lt_1 = 
+-PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+-am_iperf3_OBJECTS = iperf3-main.$(OBJEXT)
++PROGRAMS = $(bin_PROGRAMS)
++am_iperf3_OBJECTS = main.lo cjson.lo iperf_api.lo iperf_error.lo \
++        iperf_client_api.lo iperf_locale.lo iperf_server_api.lo \
++        iperf_tcp.lo iperf_udp.lo iperf_util.lo net.lo tcp_info.lo \
++        tcp_window_size.lo timer.lo units.lo
+ iperf3_OBJECTS = $(am_iperf3_OBJECTS)
+-iperf3_DEPENDENCIES = libiperf.la
+ iperf3_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(iperf3_CFLAGS) $(CFLAGS) \
+ 	$(iperf3_LDFLAGS) $(LDFLAGS) -o $@
+@@ -158,32 +150,6 @@ am__objects_1 = iperf3_profile-cjson.$(OBJEXT) \
+ 	iperf3_profile-net.$(OBJEXT) iperf3_profile-tcp_info.$(OBJEXT) \
+ 	iperf3_profile-tcp_window_size.$(OBJEXT) \
+ 	iperf3_profile-timer.$(OBJEXT) iperf3_profile-units.$(OBJEXT)
+-am_iperf3_profile_OBJECTS = iperf3_profile-main.$(OBJEXT) \
+-	$(am__objects_1)
+-iperf3_profile_OBJECTS = $(am_iperf3_profile_OBJECTS)
+-iperf3_profile_DEPENDENCIES = libiperf.la
+-iperf3_profile_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+-	$(iperf3_profile_CFLAGS) $(CFLAGS) $(iperf3_profile_LDFLAGS) \
+-	$(LDFLAGS) -o $@
+-am_t_timer_OBJECTS = t_timer-t_timer.$(OBJEXT)
+-t_timer_OBJECTS = $(am_t_timer_OBJECTS)
+-t_timer_DEPENDENCIES = libiperf.la
+-t_timer_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(t_timer_CFLAGS) \
+-	$(CFLAGS) $(t_timer_LDFLAGS) $(LDFLAGS) -o $@
+-am_t_units_OBJECTS = t_units-t_units.$(OBJEXT)
+-t_units_OBJECTS = $(am_t_units_OBJECTS)
+-t_units_DEPENDENCIES = libiperf.la
+-t_units_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(t_units_CFLAGS) \
+-	$(CFLAGS) $(t_units_LDFLAGS) $(LDFLAGS) -o $@
+-am_t_uuid_OBJECTS = t_uuid-t_uuid.$(OBJEXT)
+-t_uuid_OBJECTS = $(am_t_uuid_OBJECTS)
+-t_uuid_DEPENDENCIES = libiperf.la
+-t_uuid_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(t_uuid_CFLAGS) $(CFLAGS) \
+-	$(t_uuid_LDFLAGS) $(LDFLAGS) -o $@
+ AM_V_P = $(am__v_P_@AM_V@)
+ am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
+ am__v_P_0 = false
+@@ -218,12 +184,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+ am__v_CCLD_1 = 
+-SOURCES = $(libiperf_la_SOURCES) $(iperf3_SOURCES) \
+-	$(iperf3_profile_SOURCES) $(t_timer_SOURCES) \
+-	$(t_units_SOURCES) $(t_uuid_SOURCES)
+-DIST_SOURCES = $(libiperf_la_SOURCES) $(iperf3_SOURCES) \
+-	$(iperf3_profile_SOURCES) $(t_timer_SOURCES) \
+-	$(t_units_SOURCES) $(t_uuid_SOURCES)
++SOURCES = $(iperf3_SOURCES)
++DIST_SOURCES = $(iperf3_SOURCES)
+ am__can_run_installinfo = \
+   case $$AM_UPDATE_INFO_DIR in \
+     n|no|NO) false;; \
+@@ -547,11 +509,10 @@ target_alias = @target_alias@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-lib_LTLIBRARIES = libiperf.la                                   # Build and install an iperf library
+-include_HEADERS = iperf_api.h # Defines the headers that get installed with the program
+ 
+-# Specify the source files and flags for the iperf library
+-libiperf_la_SOURCES = \
++# Specify the sources and various flags for the iperf binary
++iperf3_SOURCES = \
++                        main.c \
+                         cjson.c \
+                         cjson.h \
+                         flowlabel.h \
+@@ -581,36 +542,10 @@ libiperf_la_SOURCES = \
+                         units.h \
+                         version.h
+ 
+-
+-# Specify the sources and various flags for the iperf binary
+-iperf3_SOURCES = main.c
+ iperf3_CFLAGS = -g
+-iperf3_LDADD = libiperf.la
+ iperf3_LDFLAGS = -g
+ 
+-# Specify the sources and various flags for the profiled iperf binary. This
+-# binary recompiles all the source files to make sure they are all profiled.
+-iperf3_profile_SOURCES = main.c \
+-						  $(libiperf_la_SOURCES)
+-
+-iperf3_profile_CFLAGS = -pg -g
+-iperf3_profile_LDADD = libiperf.la
+-iperf3_profile_LDFLAGS = -pg -g
+-
+-# Specify the sources and various flags for the test cases
+-t_timer_SOURCES = t_timer.c
+-t_timer_CFLAGS = -g
+-t_timer_LDFLAGS = 
+-t_timer_LDADD = libiperf.la
+-t_units_SOURCES = t_units.c
+-t_units_CFLAGS = -g
+-t_units_LDFLAGS = 
+-t_units_LDADD = libiperf.la
+-t_uuid_SOURCES = t_uuid.c
+-t_uuid_CFLAGS = -g
+-t_uuid_LDFLAGS = 
+-t_uuid_LDADD = libiperf.la
+-dist_man_MANS = iperf3.1 libiperf.3
++dist_man_MANS = iperf3.1
+ all: config.h
+ 	$(MAKE) $(AM_MAKEFLAGS) all-am
+ 
+@@ -699,8 +634,6 @@ clean-libLTLIBRARIES:
+ 	  rm -f $${locs}; \
+ 	}
+ 
+-libiperf.la: $(libiperf_la_OBJECTS) $(libiperf_la_DEPENDENCIES) $(EXTRA_libiperf_la_DEPENDENCIES) 
+-	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libiperf_la_OBJECTS) $(libiperf_la_LIBADD) $(LIBS)
+ install-binPROGRAMS: $(bin_PROGRAMS)
+ 	@$(NORMAL_INSTALL)
+ 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+@@ -764,22 +697,6 @@ iperf3$(EXEEXT): $(iperf3_OBJECTS) $(iperf3_DEPENDENCIES) $(EXTRA_iperf3_DEPENDE
+ 	@rm -f iperf3$(EXEEXT)
+ 	$(AM_V_CCLD)$(iperf3_LINK) $(iperf3_OBJECTS) $(iperf3_LDADD) $(LIBS)
+ 
+-iperf3_profile$(EXEEXT): $(iperf3_profile_OBJECTS) $(iperf3_profile_DEPENDENCIES) $(EXTRA_iperf3_profile_DEPENDENCIES) 
+-	@rm -f iperf3_profile$(EXEEXT)
+-	$(AM_V_CCLD)$(iperf3_profile_LINK) $(iperf3_profile_OBJECTS) $(iperf3_profile_LDADD) $(LIBS)
+-
+-t_timer$(EXEEXT): $(t_timer_OBJECTS) $(t_timer_DEPENDENCIES) $(EXTRA_t_timer_DEPENDENCIES) 
+-	@rm -f t_timer$(EXEEXT)
+-	$(AM_V_CCLD)$(t_timer_LINK) $(t_timer_OBJECTS) $(t_timer_LDADD) $(LIBS)
+-
+-t_units$(EXEEXT): $(t_units_OBJECTS) $(t_units_DEPENDENCIES) $(EXTRA_t_units_DEPENDENCIES) 
+-	@rm -f t_units$(EXEEXT)
+-	$(AM_V_CCLD)$(t_units_LINK) $(t_units_OBJECTS) $(t_units_LDADD) $(LIBS)
+-
+-t_uuid$(EXEEXT): $(t_uuid_OBJECTS) $(t_uuid_DEPENDENCIES) $(EXTRA_t_uuid_DEPENDENCIES) 
+-	@rm -f t_uuid$(EXEEXT)
+-	$(AM_V_CCLD)$(t_uuid_LINK) $(t_uuid_OBJECTS) $(t_uuid_LDADD) $(LIBS)
+-
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
+ 
+@@ -842,7 +759,7 @@ distclean-compile:
+ @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+ 
+ iperf3-main.o: main.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iperf3_CFLAGS) $(CFLAGS) -MT iperf3-main.o -MD -MP -MF $(DEPDIR)/iperf3-main.Tpo -c -o iperf3-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(iperf3-main.o -MD -MP -MF $(DEPDIR)/iperf3-main.Tpo -c -o iperf3-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+ @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/iperf3-main.Tpo $(DEPDIR)/iperf3-main.Po
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='iperf3-main.o' libtool=no @AMDEPBACKSLASH@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+diff --git a/src/iperf3.1 b/src/iperf3.1
+index 63ec798..5d1d2e3 100644
+--- a/src/iperf3.1
++++ b/src/iperf3.1
+@@ -163,5 +163,4 @@ Andrew Gallatin <gallatin at gmail.com>,
+ Stephen Hemminger <shemminger at linux-foundation.org>
+ 
+ .SH "SEE ALSO"
+-libiperf(3),
+ http://software.es.net/iperf

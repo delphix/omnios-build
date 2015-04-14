@@ -34,13 +34,17 @@ VERHUMAN=$VER   # Human-readable version
 PKG=network/iperf3 # Package name (e.g. library/foo)
 SUMMARY="iperf (version 3) network bandwidth measurement tool" # One-liner, must be filled in
 DESC="iperf (version 3) network bandwidth measurement tool"         # Longer description, must be filled in
+BUILDDIR=iperf-3.0.11
 
-BUILD_DEPENDS_IPS=
+BUILD_DEPENDS_IPS="developer/build/automake developer/build/autoconf"
 RUN_DEPENDS_IPS=
+
+LDFLAGS="-lnsl -lsocket -lresolv"
 
 init
 download_source $PROG $PROG $VER
 patch_source
+logcmd autoreconf -fis
 prep_build
 build
 make_isa_stub
