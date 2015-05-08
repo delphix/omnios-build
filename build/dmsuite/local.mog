@@ -23,4 +23,8 @@
 # Copyright (c) 2014 by Delphix. All rights reserved.
 #
 
+<transform file dir path=opt/dmsuite4.6.1.8/java.*$ -> drop>
+<transform file dir path=opt/dmsuite4.6.1.8/DMSApplicator/Data.*$ -> drop>
+<transform file dir path=opt/dmsuite4.6.1.8/pgsql-9.4.1.*$ -> drop>
+
 set name=info.classification value=org.opensolaris.category.2008:System/Services

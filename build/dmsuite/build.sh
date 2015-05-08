@@ -29,10 +29,10 @@
 . ../../lib/functions.sh
 
 PROG=dmsuite
-VER=4.5.0
+VER=4.6.1.8
 VERHUMAN=$VER
 BUILDDIR=dmsuite
-PKG=dmsuite
+PKG=service/dmsuite
 SUMMARY="DMSuite"
 DESC="DMSuite is a discovery and masking solution by Axis Technology."
 
@@ -48,19 +48,10 @@ get_resource dmsuite/dmsuite_$VER.zip || \
     logerr "Unable to get dmsuite/dmsuite_$VER.zip"
 unzip dmsuite_$VER.zip || logerr "Unable to unzip."
 
+patch_source
+
 logcmd mkdir $DESTDIR/opt/ || logerr "failed to create $DESTDIR/opt/"
 logcmd cp -r $BUILDDIR $DESTDIR/opt/dmsuite$VER || logerr "failed to copy"
-# Remove java runtime files for linux and windows which are not necessary.
-logcmd rm -rf $DESTDIR/opt/dmsuite$VER/java/jre7u25linux64/* || \
-     logerr "failed to rm linux java"
-logcmd rm -rf $DESTDIR/opt/dmsuite$VER/java/jre7u25win64/* || \
-     logerr "failed to rm win java"
-# Remove MacOS files.
-logcmd rm -rf $DESTDIR/opt/dmsuite$VER/DMSApplicator/Data\ Integration* || \
-     logerr "failed to rm MacOS files"
-# Remove reports that were generated.
-logcmd rm -rf $DESTDIR/opt/dmsuite$VER/reports/* || \
-     logerr "failed to rm MacOS files"
 
 popd >/dev/null
 
