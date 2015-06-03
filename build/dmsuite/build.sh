@@ -22,14 +22,14 @@
 #
 
 #
-# Copyright (c) 2014 by Delphix. All rights reserved.
+# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
 #
 
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=dmsuite
-VER=4.6.1.8
+VER=4.7.0.1
 VERHUMAN=$VER
 BUILDDIR=dmsuite
 PKG=service/dmsuite
@@ -46,7 +46,7 @@ pushd $TMPDIR >/dev/null || logerr "Unable to cd to $TMPDIR."
 
 get_resource dmsuite/dmsuite_$VER.zip || \
     logerr "Unable to get dmsuite/dmsuite_$VER.zip"
-unzip dmsuite_$VER.zip || logerr "Unable to unzip."
+unzip -o dmsuite_$VER.zip || logerr "Unable to unzip."
 
 patch_source
 

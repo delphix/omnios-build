@@ -20,11 +20,17 @@
 #
 
 #
-# Copyright (c) 2014 by Delphix. All rights reserved.
+# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
 #
 
-<transform file dir path=opt/dmsuite4.6.1.8/java.*$ -> drop>
-<transform file dir path=opt/dmsuite4.6.1.8/DMSApplicator/Data.*$ -> drop>
-<transform file dir path=opt/dmsuite4.6.1.8/pgsql-9.4.1.*$ -> drop>
+<transform file dir path=opt/dmsuite4.7.0.1/java.*$ -> drop>
+<transform file dir path=opt/dmsuite4.7.0.1/DMSApplicator/Data.*$ -> drop>
+<transform file dir path=opt/dmsuite4.7.0.1/pgsql-9.4.1.*$ -> drop>
+<transform file dir path=opt/dmsuite4.7.0.1/pgsql.*$ -> drop>
+<transform file dir path=opt/dmsuite4.7.0.1/apache-tomcat-7.0.42/work/Catalina/localhost/.*$ -> drop>
+<transform dir path=opt/dmsuite4.7.0.1.*$ -> set mode 0755>
+<transform file path=opt/dmsuite4.7.0.1.*$ -> set mode 0644>
+<transform file path=opt/dmsuite4.7.0.1/apache-tomcat-7.0.42/bin/.*\.sh -> set mode 0755>
+<transform file path=opt/dmsuite4.7.0.1/DMSApplicator/.*\.sh -> set mode 0755>
 
 set name=info.classification value=org.opensolaris.category.2008:System/Services
