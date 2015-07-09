@@ -30,6 +30,7 @@
 # This are used so people can see what packages get built.. pkg actually publishes
 PKG=package/pkg
 PKG=system/zones/brand/ipkg
+PKG=system/zones/brand/lipkg
 SUMMARY="This isn't used, it's in the makefiles for pkg"
 DESC="This isn't used, it's in the makefiles for pkg"
 
@@ -65,12 +66,17 @@ crib_headers(){
     done
 }
 
+# Respect an environmental override on this, for development's sake.
+PKG_SOURCE_REPO=${PKG_SOURCE_REPO:-https://github.com/omniti-labs/pkg5}
+
 clone_source(){
     logmsg "pkg -> $TMPDIR/$BUILDDIR/pkg"
     logcmd mkdir -p $TMPDIR/$BUILDDIR
     pushd $TMPDIR/$BUILDDIR > /dev/null 
+    # Even though our default is "pkg5" now, still call the directory 
+    # "pkg" for now due to the hideous number of places "pkg" occurs here.
     if [[ ! -d pkg ]]; then
-        logcmd $GIT clone anon@src.omniti.com:~omnios/core/pkg
+        logcmd $GIT clone $PKG_SOURCE_REPO pkg
     fi
     pushd pkg > /dev/null || logerr "no source"
     logcmd $GIT pull || logerr "failed to pull"

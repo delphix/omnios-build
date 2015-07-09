@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 #
 # CDDL HEADER START
 #
@@ -23,8 +24,21 @@
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-<transform dir path=".*include" -> drop>
-<transform file path=".*llib" -> drop>
-<transform link path=".*llib" -> drop>
-<transform file path=".*\.h$" -> drop>
-<transform dir -> default mode 0755>
+# Load support functions
+. ../../lib/functions.sh
+
+PROG=coverage
+VER=3.7.1
+PKG=library/python-2/coverage-26
+SUMMARY="Code coverage measurement for Python"
+DESC="$SUMMARY"
+
+DEPENDS_IPS="runtime/python-26"
+
+init
+download_source $PROG $PROG $VER
+patch_source
+prep_build
+python_build
+make_package
+clean_up

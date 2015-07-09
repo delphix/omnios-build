@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 #
 # CDDL HEADER START
 #
@@ -23,9 +24,21 @@
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-<transform file path=".*/lib.*" -> drop>
-<transform link path=".*lib/lib.*" -> drop>
-<transform link path=".*amd64/lib.*" -> drop>
-<transform link path="lib/cpp$" -> drop>
-<transform link path=".*\.h$" -> set mode 0644>
-<transform dir -> default mode 0755>
+# Load support functions
+. ../../lib/functions.sh
+
+PROG=jsonrpclib
+VER=0.1.3
+PKG=library/python-2/jsonrpclib-26
+SUMMARY="A Python JSON-RPC over HTTP that mirrors xmlrpclib syntax"
+DESC="$SUMMARY"
+
+DEPENDS_IPS="runtime/python-26"
+
+init
+download_source $PROG $PROG $VER
+patch_source
+prep_build
+python_build
+make_package
+clean_up

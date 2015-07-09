@@ -66,7 +66,7 @@ ILLUMOS_ENV=$HOME/data/illumos-omnios.env
 BUILD_PATH=$HOME/data/omnios-build
 
 # omnios-build's site.sh variables we need - export 'em.
-export KVM_CMD_ROLLBACK=1c6181be55d1cadc4426069960688307a6083131
+# export KVM_CMD_ROLLBACK=1c6181be55d1cadc4426069960688307a6083131
 export PREBUILT_ILLUMOS=$ILLUMOS_PATH
 export PKGSRVR=file://$INPROGRESS_REPO
 
@@ -154,13 +154,21 @@ build_gates() {
 	# Per above, /etc/sudoers.d needs an appropriate file with
 	# appropriate permissions.
 	export KAYAK_SUDO_BUILD=1
-	./buildctl -lb build all
-	# Restore factory site.sh.
-	git checkout -- ../lib/site.sh
+
+	./buildctl list-build | awk '{print $2}' | grep -v kayak >/tmp/blist.$$
+	./buildctl list-build | awk '{print $2}' | grep kayak >>/tmp/blist.$$
+	./buildctl -lb build `cat /tmp/blist.$$`
+	rm -f /tmp/blist.$$
 
 	# NOW clean the existing packages, and replace 'em.
-	/bin/rm -rf $FINAL_REPO
-	mv $INPROGRESS_REPO $FINAL_REPO
+	# /bin/rm -rf $FINAL_REPO
+	# mv $INPROGRESS_REPO $FINAL_REPO
+
+	# NOW upgrade the existing packages with the ones you just built.
+	echo "Sending just-built packages upstream. Using /bin/time..."
+	/bin/time pkgrecv -s $INPROGRESS_REPO -d $FINAL_REPO 'pkg:/*' > /dev/null
+	/bin/rm -rf $INPROGRESS_REPO
+	echo "Refreshing $FINAL_REPO"
 	pkgrepo refresh -s $FINAL_REPO
 }
 
