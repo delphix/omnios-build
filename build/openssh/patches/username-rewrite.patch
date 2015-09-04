@@ -1,0 +1,235 @@
+diff --git a/auth.h b/auth.h
+index d081c94..72b86a3 100644
+--- a/auth.h
++++ b/auth.h
+@@ -55,7 +55,8 @@ struct Authctxt {
+ 	int		 failures;
+ 	int		 server_caused_failure; 
+ 	int		 force_pwchange;
+-	char		*user;		/* username sent by the client */
++	char		*user;		/* possibly rewritten username */
++	char		*orig_user;	/* username sent by the client */
+ 	char		*service;
+ 	struct passwd	*pw;		/* set if 'valid' */
+ 	char		*style;
+diff --git a/auth2-pubkey.c b/auth2-pubkey.c
+index f3ca965..1a2aa8c 100644
+--- a/auth2-pubkey.c
++++ b/auth2-pubkey.c
+@@ -133,7 +133,7 @@ userauth_pubkey(Authctxt *authctxt)
+ 		}
+ 		/* reconstruct packet */
+ 		buffer_put_char(&b, SSH2_MSG_USERAUTH_REQUEST);
+-		xasprintf(&userstyle, "%s%s%s", authctxt->user,
++		xasprintf(&userstyle, "%s%s%s", authctxt->orig_user,
+ 		    authctxt->style ? ":" : "",
+ 		    authctxt->style ? authctxt->style : "");
+ 		buffer_put_cstring(&b, userstyle);
+diff --git a/auth2.c b/auth2.c
+index d9b440a..a25ece7 100644
+--- a/auth2.c
++++ b/auth2.c
+@@ -230,14 +230,17 @@ input_userauth_request(int type, u_int32_t seq, void *ctxt)
+ 	if ((style = strchr(user, ':')) != NULL)
+ 		*style++ = 0;
+ 
++	authctxt->orig_user = xstrdup(user);
++
+ 	if (authctxt->attempt++ == 0) {
+ 		/* setup auth context */
+ 		authctxt->pw = PRIVSEP(getpwnamallow(user));
+-		authctxt->user = xstrdup(user);
+ 		if (authctxt->pw && strcmp(service, "ssh-connection")==0) {
+ 			authctxt->valid = 1;
++			authctxt->user = xstrdup(authctxt->pw->pw_name);
+ 			debug2("input_userauth_request: setting up authctxt for %s", user);
+ 		} else {
++			authctxt->user = xstrdup(user);
+ 			logit("input_userauth_request: invalid user %s", user);
+ 			authctxt->pw = fakepw();
+ #ifdef SSH_AUDIT_EVENTS
+@@ -257,11 +260,11 @@ input_userauth_request(int type, u_int32_t seq, void *ctxt)
+ 		userauth_banner();
+ 		if (auth2_setup_methods_lists(authctxt) != 0)
+ 			packet_disconnect("no authentication methods enabled");
+-	} else if (strcmp(user, authctxt->user) != 0 ||
++	} else if (strcmp(user, authctxt->orig_user) != 0 ||
+ 	    strcmp(service, authctxt->service) != 0) {
+ 		packet_disconnect("Change of username or service not allowed: "
+ 		    "(%s,%s) -> (%s,%s)",
+-		    authctxt->user, authctxt->service, user, service);
++		    authctxt->orig_user, authctxt->service, user, service);
+ 	}
+ 	/* reset state */
+ 	auth2_challenge_stop(authctxt);
+diff --git a/monitor.c b/monitor.c
+index dbe29f1..7e50a91 100644
+--- a/monitor.c
++++ b/monitor.c
+@@ -42,6 +42,7 @@
+ #include <signal.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <strings.h>
+ #include <stdarg.h>
+ #include <stdio.h>
+ #include <unistd.h>
+@@ -220,6 +221,10 @@ struct mon_table {
+ 
+ #define MON_PERMIT	0x1000	/* Request is permitted */
+ 
++#define	DELPHIX_ENABLED_USER_CACHE "/var/delphix/server/etc/enabled-users.txt"
++#define	DELPHIX_SYSTEM_NS "SYSTEM"
++#define	DELPHIX_DOMAIN_NS "DOMAIN"
++
+ struct mon_table mon_dispatch_proto20[] = {
+ #ifdef WITH_OPENSSL
+     {MONITOR_REQ_MODULI, MON_ONCE, mm_answer_moduli},
+@@ -741,12 +746,123 @@ mm_answer_sign(int sock, Buffer *m)
+ 	return (0);
+ }
+ 
++/*
++ * If the user didn't specify a namespace and there is a name conflict, default
++ * to the DOMAIN namespace (see LoginService#getUserType).
++ */
++static const char *
++get_namespace(const char *username)
++{
++	FILE *file;
++	char buf[BUFSIZ];
++	const char *namespace = NULL;
++
++	if ((file = fopen(DELPHIX_ENABLED_USER_CACHE, "r")) == NULL)
++		return (NULL);
++
++	while (fgets(buf, sizeof (buf), file) != NULL) {
++		char *token, *lasts;
++
++		/* Get the username. */
++		if ((token = strtok_r(buf, ":", &lasts)) == NULL)
++			continue;
++
++		/*
++		 * If we haven't found the desired username yet, keep
++		 * searching.
++		 */
++		if (strcmp(token, username) != 0)
++			continue;
++
++		/* Get the namespace. */
++		if ((token = strtok_r(NULL, ":", &lasts)) == NULL)
++			continue;
++
++		if (namespace == NULL) {
++			/* This is the first time we've seen this username. */
++			if (strcmp(token, DELPHIX_SYSTEM_NS) == 0)
++				namespace = DELPHIX_SYSTEM_NS;
++			else if (strcmp(token, DELPHIX_DOMAIN_NS) == 0)
++				namespace = DELPHIX_DOMAIN_NS;
++
++			continue;
++		} else {
++			/* There is a name conflict. */
++			namespace = DELPHIX_DOMAIN_NS;
++
++			break;
++		}
++	}
++
++	(void) fclose(file);
++
++	return (namespace);
++}
++
++static char *
++rewrite_username(const char *input)
++{
++	char buf[256];
++	size_t length;
++	const char *namespace = NULL;
++	char *atsign;
++
++	/* If getpwnam(3C) returns a valid user, we don't do any rewriting. */
++	if (getpwnam(input) != NULL)
++		return (NULL);
++
++	if ((atsign = strchr(input, '@')) != NULL) {
++		/*
++		 * Determine the case-normalized namespace, if the user
++		 * supplied one. If the user supplied an invalid namespace, we
++		 * don't do any rewriting.
++		 */
++		if (strcasecmp(atsign + 1, DELPHIX_SYSTEM_NS) == 0)
++			namespace = DELPHIX_SYSTEM_NS;
++		else if (strcasecmp(atsign + 1, DELPHIX_DOMAIN_NS) == 0)
++			namespace = DELPHIX_DOMAIN_NS;
++		else
++			return (NULL);
++
++		length = (size_t)(atsign - input);
++	} else {
++		length = strlen(input);
++	}
++
++	/* Extract the username from the given input. */
++	if (length + 1 > sizeof (buf))
++		return (NULL);
++	(void) strlcpy(buf, input, length + 1);
++
++	/*
++	 * If the user did not specify a namespace, we attempt to determine the
++	 * namespace here.
++	 */
++	if (namespace == NULL)
++		namespace = get_namespace(input);
++
++	/*
++	 * If we couldn't determine the namespace for this user, we don't do
++	 * any rewriting.
++	 */
++	if (namespace == NULL)
++		return (NULL);
++
++	/* Format the result. */
++	if (strlcat(buf, "@", sizeof (buf)) >= sizeof (buf))
++		return (NULL);
++	if (strlcat(buf, namespace, sizeof (buf)) >= sizeof (buf))
++		return (NULL);
++
++	return (strdup(buf));
++}
++
+ /* Retrieves the password entry and also checks if the user is permitted */
+ 
+ int
+ mm_answer_pwnamallow(int sock, Buffer *m)
+ {
+-	char *username;
++	char *username, *rewritten;
+ 	struct passwd *pwent;
+ 	int allowed = 0;
+ 	u_int i;
+@@ -757,6 +873,13 @@ mm_answer_pwnamallow(int sock, Buffer *m)
+ 		fatal("%s: multiple attempts for getpwnam", __func__);
+ 
+ 	username = buffer_get_string(m, NULL);
++	authctxt->orig_user = xstrdup(username);
++
++	rewritten = rewrite_username(username);
++	if (rewritten != NULL) {
++		free(username);
++		username = rewritten;
++	}
+ 
+ 	pwent = getpwnamallow(username);
+ 
+@@ -1267,7 +1390,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
+ 	if (buffer_get_char(&b) != SSH2_MSG_USERAUTH_REQUEST)
+ 		fail++;
+ 	p = buffer_get_cstring(&b, NULL);
+-	xasprintf(&userstyle, "%s%s%s", authctxt->user,
++	xasprintf(&userstyle, "%s%s%s", authctxt->orig_user,
+ 	    authctxt->style ? ":" : "",
+ 	    authctxt->style ? authctxt->style : "");
+ 	if (strcmp(userstyle, p) != 0) {

@@ -11,9 +11,10 @@
 			<service_fmri value='svc:/network/loopback:default' />
 		</dependency>
 
-		<dependency name='physical'  grouping='require_all'
+		<dependency name='physical'  grouping='require_any'
 		restart_on='none' type='service'>
 			<service_fmri value='svc:/network/physical:default' />
+			<service_fmri value='svc:/network/physical:nwam' />
 		</dependency>
 
 		<dependency name='cryptosvc'  grouping='require_all'
@@ -21,9 +22,24 @@
 			<service_fmri value='svc:/system/cryptosvc:default' />
 		</dependency>
 		
+		<dependency name='utmp' grouping='require_all'
+		restart_on='none' type='service'>
+			<service_fmri value='svc:/system/utmp' />
+		</dependency>
+
+		<dependency name='network_ipfilter' grouping='optional_all'
+		restart_on='error' type='service'>
+			<service_fmri value='svc:/network/ipfilter:default' />
+		</dependency>
+
 		<dependency name='localfs'  grouping='require_all'
 		restart_on='none' type='service'>
 			<service_fmri value='svc:/system/filesystem/local:default' />
+		</dependency>
+
+		<dependency name='fs-autofs' grouping='optional_all'
+		restart_on='none' type='service'>
+			<service_fmri value='svc:/system/filesystem/autofs' />
 		</dependency>
 
 		<dependency
@@ -35,6 +51,11 @@
 		value='file://localhost/etc/ssh/sshd_config' />
 		</dependency>
 		
+		<dependent name='ssh_multi-user-server' grouping='optional_all'
+		restart_on='none'>
+			<service_fmri value='svc:/milestone/multi-user-server' />
+		</dependent>
+
 		<exec_method name='start' type='method'
 		exec='/lib/svc/method/sshd start'
 		timeout_seconds='60' />
@@ -44,7 +65,7 @@
 		timeout_seconds='60' />
 		
 		<exec_method name='refresh' type='method'
-		exec='/lib/svc/method/sshd restart'
+		exec=':kill -HUP'
 		timeout_seconds='60' />
 
 		<property_group name='general' type='framework'>
@@ -60,7 +81,7 @@
 			</common_name>
 
 			<documentation>
-				<manpage title='sshd' section='8' />
+				<manpage title='sshd' section='1M' />
 				<doc_link name='openssh.com' uri='http://openssh.com' />
 			</documentation>
 		</template>

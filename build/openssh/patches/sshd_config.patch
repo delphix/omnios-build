@@ -1,6 +1,17 @@
---- openssh-6.1p1/sshd_config.orig	2012-07-31 02:21:34.000000000 +0000
-+++ openssh-6.1p1/sshd_config	2013-02-26 15:16:29.775204829 +0000
-@@ -37,7 +37,7 @@
+diff --git a/sshd_config b/sshd_config
+index e9045bc..03afce5 100644
+--- a/sshd_config
++++ b/sshd_config
+@@ -16,7 +16,7 @@
+ #ListenAddress ::
+ 
+ # The default requires explicit activation of protocol 1
+-#Protocol 2
++Protocol 2
+ 
+ # HostKey for protocol version 1
+ #HostKey /etc/ssh/ssh_host_key
+@@ -41,7 +41,7 @@
  # Authentication:
  
  #LoginGraceTime 2m
@@ -9,8 +20,30 @@
  #StrictModes yes
  #MaxAuthTries 6
  #MaxSessions 10
-@@ -95,8 +95,8 @@
- #X11Forwarding no
+@@ -51,7 +51,7 @@
+ 
+ # The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
+ # but this is overridden so installations will only check .ssh/authorized_keys
+-AuthorizedKeysFile	.ssh/authorized_keys
++AuthorizedKeysFile	.ssh/authorized_keys /export/home/cli/.ssh/authorized_keys.%u
+ 
+ #AuthorizedPrincipalsFile none
+ 
+@@ -94,36 +94,37 @@ AuthorizedKeysFile	.ssh/authorized_keys
+ # If you just want the PAM account and session checks to run without
+ # PAM authentication, then enable this but set PasswordAuthentication
+ # and ChallengeResponseAuthentication to 'no'.
+-#UsePAM no
++UsePAM yes
+ 
+-#AllowAgentForwarding yes
+-#AllowTcpForwarding yes
++AllowAgentForwarding no
++AllowTcpForwarding no
++AllowStreamLocalForwarding no
+ #GatewayPorts no
+-#X11Forwarding no
++X11Forwarding no
  #X11DisplayOffset 10
  #X11UseLocalhost yes
  #PermitTTY yes
@@ -19,3 +52,35 @@
  #PrintLastLog yes
  #TCPKeepAlive yes
  #UseLogin no
+-UsePrivilegeSeparation sandbox		# Default for new installations.
++UsePrivilegeSeparation sandbox # GEN005537
+ #PermitUserEnvironment no
+-#Compression delayed
++Compression no # GEN005539
+ #ClientAliveInterval 0
+ #ClientAliveCountMax 3
+ #UseDNS yes
+ #PidFile /var/run/sshd.pid
+ #MaxStartups 10:30:100
+-#PermitTunnel no
++PermitTunnel no # GEN005531
+ #ChrootDirectory none
+ #VersionAddendum none
+ 
+ # no default banner path
+-#Banner none
++Banner /etc/issue
+ 
+ # override default of no subsystems
+-Subsystem	sftp	/usr/libexec/sftp-server
++#Subsystem	sftp	/usr/libexec/sftp-server
+ 
+ # Example of overriding settings on a per-user basis
+ #Match User anoncvs
+@@ -131,3 +132,6 @@ Subsystem	sftp	/usr/libexec/sftp-server
+ #	AllowTcpForwarding no
+ #	PermitTTY no
+ #	ForceCommand cvs server
++Ciphers aes128-ctr,aes192-ctr,aes256-ctr # GEN005505, GEN005506
++MACs hmac-sha1,hmac-sha2-256,hmac-sha2-512 # GEN005507
++AllowGroups staff # GEN005521
