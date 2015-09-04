@@ -1,0 +1,21 @@
+diff --git a/ssh_config b/ssh_config
+index 03a228f..66d1c0f 100644
+--- a/ssh_config
++++ b/ssh_config
+@@ -35,12 +35,12 @@
+ #   IdentityFile ~/.ssh/id_rsa
+ #   IdentityFile ~/.ssh/id_dsa
+ #   Port 22
+-#   Protocol 2,1
++Protocol 2 # GEN005501
+ #   Cipher 3des
+-#   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc
+-#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
++Ciphers aes128-ctr,aes192-ctr,aes256-ctr # GEN005510, GEN005511
++MACs hmac-sha1,hmac-sha2-256,hmac-sha2-512 # GEN005512
+ #   EscapeChar ~
+-#   Tunnel no
++Tunnel no # GEN005532
+ #   TunnelDevice any:any
+ #   PermitLocalCommand no
+ #   VisualHostKey no

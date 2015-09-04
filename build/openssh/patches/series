@@ -1,3 +1,4 @@
 man-sections.patch
+ssh_config.patch
 sshd_config.patch
 username-rewrite.patch
