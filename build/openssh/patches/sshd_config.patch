@@ -1,5 +1,5 @@
 diff --git a/sshd_config b/sshd_config
-index e9045bc..03afce5 100644
+index 4d77f05..6fe607d 100644
 --- a/sshd_config
 +++ b/sshd_config
 @@ -16,7 +16,7 @@
@@ -15,7 +15,7 @@ index e9045bc..03afce5 100644
  # Authentication:
  
  #LoginGraceTime 2m
--#PermitRootLogin yes
+-#PermitRootLogin prohibit-password
 +PermitRootLogin no
  #StrictModes yes
  #MaxAuthTries 6
@@ -29,12 +29,9 @@ index e9045bc..03afce5 100644
  
  #AuthorizedPrincipalsFile none
  
-@@ -94,36 +94,37 @@ AuthorizedKeysFile	.ssh/authorized_keys
- # If you just want the PAM account and session checks to run without
- # PAM authentication, then enable this but set PasswordAuthentication
+@@ -96,34 +96,35 @@ AuthorizedKeysFile	.ssh/authorized_keys
  # and ChallengeResponseAuthentication to 'no'.
--#UsePAM no
-+UsePAM yes
+ #UsePAM no
  
 -#AllowAgentForwarding yes
 -#AllowTcpForwarding yes
@@ -59,7 +56,7 @@ index e9045bc..03afce5 100644
 +Compression no # GEN005539
  #ClientAliveInterval 0
  #ClientAliveCountMax 3
- #UseDNS yes
+ #UseDNS no
  #PidFile /var/run/sshd.pid
  #MaxStartups 10:30:100
 -#PermitTunnel no

@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=openssh
-VER=6.7p1
+VER=7.1p1
 VERHUMAN=$VER
 PKG=network/openssh
 SUMMARY="OpenSSH Client and utilities"
@@ -47,12 +47,16 @@ CONFIGURE_OPTS_32="
     "
 # Feature choices
 CONFIGURE_OPTS="
+    --disable-lastlog
     --with-solaris-contracts
     --with-solaris-projects
     --with-tcp-wrappers
     --with-ssl-engine
     --with-pam
     "
+CFLAGS+=" -DPAM_BUGFIX"
+CFLAGS+=" -DPAM_ENHANCEMENT"
+CFLAGS+=" -DSET_USE_PAM"
 
 install_smf() {
     logmsg "Installing SMF components"
