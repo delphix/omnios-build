@@ -29,7 +29,7 @@
 . ../../lib/functions.sh
 
 PROG=jdk-8
-VER=40
+VER=60
 BUILDDIR=jdk1.8.0_$VER
 VERHUMAN=$VER
 PKG=developer/java/jdk-8
