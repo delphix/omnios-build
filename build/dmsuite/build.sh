@@ -29,7 +29,7 @@
 . ../../lib/functions.sh
 
 PROG=dmsuite
-VER=4.7.0.1
+VER=4.7.2.0
 VERHUMAN=$VER
 BUILDDIR=dmsuite
 PKG=service/dmsuite
