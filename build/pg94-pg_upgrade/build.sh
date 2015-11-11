@@ -28,9 +28,9 @@
 . ../../lib/functions.sh
 
 PROG=postgresql
-VER=9.4.1
+VER=9.4.5
 VERHUMAN=$VER
-PKG=omniti/database/postgresql-941/pg_upgrade
+PKG=omniti/database/postgresql-945/pg_upgrade
 DOWNLOADDIR=postgres
 MODULE=pg_upgrade
 SUPPORT_MODULE=pg_upgrade_support
