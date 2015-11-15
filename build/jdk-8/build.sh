@@ -71,15 +71,37 @@ for file in \
 	jre/bin/policytool \
 	jre/bin/amd64/policytool \
 	jre/lib/amd64/libawt_xawt.so \
-	jre/lib/amd64/libfontmanager.so \
 	jre/lib/amd64/libjawt.so \
 	jre/lib/amd64/libsplashscreen.so \
-	jre/lib/amd64/libt2k.so \
 	lib/amd64/libjawt.so
 do
 	rm $DESTDIR/opt/$BUILDDIR/$file || \
 	    logerr "Unable to rm $DESTDIR/opt/$BUILDDIR/$file."
 done
+
+#
+# Special case for JDK 8 Update 60:
+#   jre/lib/amd64/libt2k.so depends on jre/lib/amd64/libawt_xawt.so and
+#   jre/lib/amd64/libawt_xawt.so has several X11 dependencies
+#
+# The JDK containes two implementations of the AWT library dependency
+# (i.e., both libraries have the same external symbols):
+#   jre/lib/amd64/libawt_xawt.so
+#   jre/lib/amd64/libawt_headless.so
+#
+# For DxOS, libt2k.so should use libawt_headless.so instead of
+# libawt_xawt.so since the later has X11 dependencies.
+#
+# The fix is to link libawt_headless.so into the file system namespace
+# at the location LD will look for the libawt_xawt.so dependency.
+#
+# NOTE: This is corrected in JDK 8 Update 66. In that release,
+# libt2k.so depends on libawt_headless.so
+#
+if [ 60 -eq $VER ]; then
+	ln -s libawt_headless.so $DESTDIR/opt/$BUILDDIR/jre/lib/amd64/libawt_xawt.so || \
+	    logerr "Unable to create symlink for libawt_xawt.so"
+fi
 
 popd >/dev/null
 
