@@ -29,9 +29,9 @@
 . ../../lib/functions.sh
 
 PROG=open-vm-tools
-BUILDDIR=open-vm-tools-9.4.0-1280544
-VER=9.4.0
-VERHUMAN=9.4.0
+BUILDDIR=open-vm-tools-10.0.5-3227872
+VER=10.0.5
+VERHUMAN=10.0.5
 PKG=system/virtualization/open-vm-tools
 SUMMARY="Open Virtual Machine Tools"
 DESC="The Open Virtual Machine Tools project aims to provide a suite of open source virtualization utilities and drivers to improve the functionality and user experience of virtualization. The project currently runs in guest operating systems under the VMware hypervisor."
@@ -48,21 +48,27 @@ install_smf() {
 }
 
 CFLAGS="-Wno-deprecated-declarations -Wno-unused-local-typedefs"
+CFLAGS+=" -Wno-unused-variable -D_XPG4_2 -D__EXTENSIONS__"
+
 CONFIGURE_OPTS="
 	--without-kernel-modules
-	--disable-static
 	--without-x
-	--without-dnet
 	--without-icu
+	--without-dnet
 	--without-gtk2
 	--without-gtkmm
+	--disable-deploypkg
+	--disable-grabbitmqproxy
+	--disable-vgauth
+	--disable-static
 "
+CFLAGS32="-D_FILE_OFFSET_BITS=64"
 BUILDARCH=32
-
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
+run_autoreconf_i
 build
 install_smf
 make_isa_stub

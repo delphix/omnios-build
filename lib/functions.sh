@@ -386,6 +386,13 @@ run_autoconf() {
     popd > /dev/null
 }
 
+run_autoreconf_i() {
+    logmsg "Running autoreconf -i"
+    pushd $TMPDIR/$BUILDDIR > /dev/null
+    logcmd autoreconf -i || logerr "Failed to run autoreconf"
+    popd > /dev/null
+}
+
 #############################################################################
 # Stuff that needs to be done/set before we start building
 #############################################################################
