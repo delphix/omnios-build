@@ -23,7 +23,7 @@
 #
 # Copyright 2015 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
-# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
+# Copyright (c) 2014, 2016 by Delphix. All rights reserved.
 #
 
 umask 022
