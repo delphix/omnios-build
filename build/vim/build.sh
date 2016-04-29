@@ -24,6 +24,11 @@
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
+
+#
+# Copyright (c) 2016 by Delphix. All rights reserved.
+#
+
 # Load support functions
 . ../../lib/functions.sh
 
@@ -54,18 +59,33 @@ CONFIGURE_OPTS="
 "
 reset_configure_opts
 
+preprep_build() {
+    pushd $TMPDIR/$BUILDDIR > /dev/null || logerr "Cannot change to build directory"
+    echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
+    popd > /dev/null
+}
+
 # The build doesn't supply a 'vi' symlink so we make one
 link_vi() {
     logmsg "Creating symlink for $PREFIX/bin/vi"
     logcmd ln -s vim $DESTDIR$PREFIX/bin/vi
 }
 
+# Copy a vimrc so as to set vim in a vi-incompatible manner
+copy_vimrc() {
+    logmsg "Copying vimrc to /etc/vimrc"
+    logcmd mkdir -p $DESTDIR/etc
+    logcmd cp $SRCDIR/files/vimrc $DESTDIR/etc/vimrc
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
+preprep_build
 prep_build
 build
 link_vi
+copy_vimrc
 make_isa_stub
 VER=${VER}.${PATCHLEVEL}
 make_package
