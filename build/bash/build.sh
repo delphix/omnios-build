@@ -111,11 +111,9 @@ install_files() {
     logmsg "Installing extra files"
     logcmd cp $SRCDIR/files/rbash.1 $DESTDIR$PREFIX/share/man/man1/
     logcmd mkdir -p $DESTDIR/etc/bash
-    logcmd mkdir -p $DESTDIR/etc/skel
     logcmd cp $SRCDIR/files/etc.bash.bash_completion $DESTDIR/etc/bash/bash_completion
     logcmd cp $SRCDIR/files/etc.bash.bashrc $DESTDIR/etc/bash/bashrc.example
     logcmd cp $SRCDIR/files/etc.bash.inputrc $DESTDIR/etc/bash/inputrc.example
-    logcmd cp $SRCDIR/files/etc.skel.bashrc $DESTDIR/etc/skel/.bashrc
 }
 
 make_symlink() {
