@@ -1,0 +1,12 @@
+--- a/agent/mibgroup/kernel_sunos5.c                                            
++++ b/agent/mibgroup/kernel_sunos5.c                                            
+@@ -879,7 +879,7 @@ getmib(int groupname, int subgroupname, void **statbuf, size_t *size,                                                                       
+     struct T_optmgmt_ack *toa = (struct T_optmgmt_ack *) buf;                  
+     struct T_error_ack *tea = (struct T_error_ack *) buf;    8,1           All
+     struct opthdr  *req;
+-    found_e         result = FOUND;
++    found_e         result = NOT_FOUND;
+     size_t oldsize;
+ 
+     DEBUGMSGTL(("kernel_sunos5", "...... getmib (%d, %d, ...)\n",
+
