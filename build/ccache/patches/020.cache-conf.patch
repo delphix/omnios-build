@@ -1,8 +1,9 @@
 --- /dev/null
 +++ b/ccache.conf
-@@ -0,0 +1,5 @@
+@@ -0,0 +1,6 @@
 +cache_dir = /net/pharos/export/ccache
 +compiler_check = content
 +max_size = 40.0G
 +temporary_dir = /tmp/ccache
 +umask = 002
++path = /opt/gcc-4.4.4/bin
