@@ -24,19 +24,19 @@
 # Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
+# Copyright (c) 2014, 2016 by Delphix. All rights reserved.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=fio        # App name
-VER=2.1.14      # App version
+VER=2.12        # App version
 VERHUMAN=$VER   # Human-readable version
 #PVER=          # Branch (set in config.sh, override here if needed)
 PKG=benchmark/fio # Package name (e.g. library/foo)
 SUMMARY="Flexible IO Tester" # One-liner, must be filled in
 DESC="Flexible IO Tester" # Longer description, must be filled in
-PATH=/usr/gnu/bin:$PATH # The source will only unpack using GNU tar
+PATH=/usr/gnu/bin:/opt/csw/bin:$PATH # The source will only unpack using GNU tar
 NOSCRIPTSTUB=1  # Don't make isa wrappers for scripts
 
 BUILD_DEPENDS_IPS=

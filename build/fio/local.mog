@@ -10,10 +10,10 @@
 #
 
 #
-# Copyright (c) 2015 by Delphix. All rights reserved.
+# Copyright (c) 2015, 2016 by Delphix. All rights reserved.
 #
 
 license COPYING license=GPLv2
-license LICENSE license=GPLv2
+license MORAL-LICENSE license=GPLv2
 set name=info.classification \
     value=org.opensolaris.category.2008:System/Services
