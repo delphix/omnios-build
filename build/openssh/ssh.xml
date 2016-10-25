@@ -21,7 +21,7 @@
 		restart_on='none' type='service'>
 			<service_fmri value='svc:/system/cryptosvc:default' />
 		</dependency>
-		
+
 		<dependency name='utmp' grouping='require_all'
 		restart_on='none' type='service'>
 			<service_fmri value='svc:/system/utmp' />
@@ -32,16 +32,11 @@
 			<service_fmri value='svc:/network/ipfilter:default' />
 		</dependency>
 
-		<dependency name='localfs'  grouping='require_all'
-		restart_on='none' type='service'>
-			<service_fmri value='svc:/system/filesystem/local:default' />
-		</dependency>
-
-		<dependency name='fs-autofs' grouping='optional_all'
-		restart_on='none' type='service'>
-			<service_fmri value='svc:/system/filesystem/autofs' />
-		</dependency>
-
+<!--
+		Normally, SSH is dependent on filesystem/local to make sure we can
+		load all our config files.  We remove that dependency because we
+		know that we don't rely on other config files.
+-->
 		<dependency
 		name='config-file'
 		grouping='require_all'
@@ -56,14 +51,19 @@
 			<service_fmri value='svc:/milestone/multi-user-server' />
 		</dependent>
 
+		<dependent name='ssh_ssh' grouping='require_all'
+		restart_on='none'>
+			<service_fmri value='svc:/milestone/ssh' />
+		</dependent>
+
 		<exec_method name='start' type='method'
 		exec='/lib/svc/method/sshd start'
 		timeout_seconds='60' />
-		
+
 		<exec_method name='stop' type='method'
 		exec=':kill'
 		timeout_seconds='60' />
-		
+
 		<exec_method name='refresh' type='method'
 		exec=':kill -HUP'
 		timeout_seconds='60' />
