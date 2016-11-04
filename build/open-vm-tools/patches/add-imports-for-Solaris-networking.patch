@@ -1,0 +1,19 @@
+diff --git a/lib/nicInfo/nicInfoPosix.c b/lib/nicInfo/nicInfoPosix.c
+index db4f038..077cce5 100644
+--- a/lib/nicInfo/nicInfoPosix.c
++++ b/lib/nicInfo/nicInfoPosix.c
+@@ -34,7 +34,10 @@
+ #include <sys/socket.h>
+ #include <sys/stat.h>
+ #include <errno.h>
+-#if defined(__FreeBSD__) || defined(__APPLE__)
++#if defined(sun)
++# include <ifaddrs.h>
++# include <net/if.h>
++#elif defined(__FreeBSD__) || defined(__APPLE__)
+ # include <sys/sysctl.h>
+ # include <ifaddrs.h>
+ # include <net/if.h>
+-- 
+2.1.4
+
