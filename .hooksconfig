@@ -1,0 +1,87 @@
+[gate]
+        name = pkg-build-gate
+        shortname = pkg-build
+        notify = git-notify-os@delphix.com
+        slack-url = https://hooks.slack.com/services/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
+        slack-color = dddd00
+
+[receive]
+        denycurrentbranch = true
+        denyNonFastForwards = true
+[branch "master"]
+        gate-release-check = skip
+        gate-approvers = gatekeepers
+        gate-allowed-issuetypes = 1,2,10302
+        gate-slack-notify = pushes
+        gate-release = Jocacean
+        codename = Jocacean
+[branch "4.0/release"]
+        gate-release = 4.0.6.2
+        gate-allowed-issuetypes = 10405
+        gate-approvers = gatekeepers-40
+[branch "4.0/stage"]
+        gate-release = 4.0.7.0
+        gate-allowed-issuetypes = 10405
+        gate-approvers = gatekeepers-40
+[branch "4.1/stage"]
+        gate-approvers = gatekeepers-41
+        gate-release = 4.1.7.0
+        gate-allowed-issuetypes = 10405
+        gate-slack-notify = pushes
+[branch "4.1/release"]
+        gate-release = 4.1.6.1
+        gate-allowed-issuetypes = 10405
+        gate-approvers = gatekeepers-41
+        gate-slack-notify = pushes
+[branch "4.2/release"]
+        gate-release = 4.2.5.2
+        gate-allowed-issuetypes = 10405
+        gate-approvers = gatekeepers-42
+        gate-slack-notify = pushes
+        gate-locked = true
+[branch "4.2/stage"]
+        gate-locked = true
+        gate-allowed-issuetypes = 10405
+        gate-approvers = gatekeepers-42
+        gate-slack-notify = pushes
+        gate-release = 4.2.6.0
+[branch "4.3/release"]
+        gate-release = 4.3.5.2
+        gate-allowed-issuetypes = 10405
+        gate-approvers = gatekeepers-43
+        gate-slack-notify = pushes
+[branch "4.3/stage"]
+        gate-approvers = gatekeepers-43
+        gate-allowed-issuetypes = 10405
+        gate-slack-notify = pushes
+        gate-release = 4.3.6.0
+[branch "5.0/release"]
+	    gate-release = 5.0.5.4
+	    gate-approvers = gatekeepers-50
+	    gate-allowed-issuetypes = 10405
+        gate-slack-notify = pushes
+	    gate-locked = true
+[branch "5.0/stage"]
+	    gate-locked = true
+	    gate-approvers = gatekeepers-50
+	    gate-allowed-issuetypes = 10405
+	    gate-slack-notify = pushes
+	    gate-release = 5.0.6.0
+[branch "5.1/release"]
+        gate-release = 5.1.3.2
+	    gate-slack-notify = pushes
+        gate-approvers = gatekeepers-51
+	    gate-allowed-issuetypes = 10405
+[branch "5.1/stage"]
+        gate-slack-notify = pushes
+        gate-approvers = gatekeepers-51
+        gate-allowed-issuetypes = 10405
+        gate-release = 5.1.4.0
+[branch "projects/hyperv"]
+        gate-notify = prakash.surya@delphix.com
+        gate-user-check = on
+	    gate-commit-check = skip
+        gate-comment-check = skip
+        gate-release-check = skip
+        gate-review-check = skip
+        gate-triage-check = skip
