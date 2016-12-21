@@ -1,5 +1,3 @@
-diff --git a/lib/nicInfo/nicInfoPosix.c b/lib/nicInfo/nicInfoPosix.c
-index db4f038..077cce5 100644
 --- a/lib/nicInfo/nicInfoPosix.c
 +++ b/lib/nicInfo/nicInfoPosix.c
 @@ -34,7 +34,10 @@

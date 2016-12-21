@@ -1,0 +1,14 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -1417,7 +1417,7 @@ VIX_LIBADD="$VIX_LIBADD $THREAD_LIB"
+
+ HGFS_LIBS="$BUILDDIR/libhgfs/libhgfs.la"
+
+-VMTOOLS_LIBS="$BUILDDIR/libvmtools/libvmtools.la $GLIB2_LIBS"
++VMTOOLS_LIBS="$BUILDDIR/libvmtools/libvmtools.la $GLIB2_LIBS -lnsl"
+ VMTOOLS_CPPFLAGS="-DVMTOOLS_USE_GLIB $GLIB2_CPPFLAGS"
+
+ PLUGIN_CPPFLAGS="$VMTOOLS_CPPFLAGS $PLUGIN_CPPFLAGS"
+--
+2.1.4
+
