@@ -1,2 +1,0 @@
-nodejs.python.patch -p1
-nodejs.without_mdb.patch -p1

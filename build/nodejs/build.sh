@@ -27,7 +27,7 @@
 #
 
 #
-# Copyright (c) 2014, 2015 by Delphix. All rights reserved.
+# Copyright (c) 2014, 2017 by Delphix. All rights reserved.
 #
 
 # Load support functions
@@ -38,7 +38,7 @@ PATH=$PATH:/usr/gnu/i386-pc-solaris2.11/bin
 export PATH
 
 PROG=node
-VER=0.12.4
+VER=6.9.4
 BUILDDIR=$PROG-v$VER
 VERHUMAN=$VER
 PKG=runtime/nodejs
@@ -49,7 +49,7 @@ DEPENDS_IPS="library/security/openssl library/zlib runtime/python-26
 	shell/bash system/library/g++-4-runtime system/library/gcc-4-runtime
 	system/library/math system/library"
 BUILDARCH=64
-CONFIGURE_OPTS="--shared-zlib --without-mdb --prefix=$PREFIX"
+CONFIGURE_OPTS="--shared-zlib --prefix=$PREFIX"
 CONFIGURE_OPTS_64="--dest-cpu=x64"
 
 init
