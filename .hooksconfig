@@ -10,7 +10,7 @@
         denyNonFastForwards = true
 [branch "master"]
         gate-release-check = skip
-        gate-approvers = gatekeepers
+        gate-approvers = gatekeepers-os
         gate-allowed-issuetypes = 1,2,10302
         gate-slack-notify = pushes
         gate-release = Jocacean
