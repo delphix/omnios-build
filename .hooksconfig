@@ -56,7 +56,7 @@
         gate-slack-notify = pushes
         gate-release = 4.3.6.0
 [branch "5.0/release"]
-	    gate-release = 5.0.5.4
+	    gate-release = 5.0.5.5
 	    gate-approvers = gatekeepers-50
 	    gate-allowed-issuetypes = 10405
         gate-slack-notify = pushes
