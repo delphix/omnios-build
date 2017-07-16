@@ -45,8 +45,8 @@ PKG=runtime/nodejs
 SUMMARY="evented I/O for v8 javascript"
 DESC="Node.js is a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient, perfect for data-intensive real-time applications that run across distributed devices."
 
-DEPENDS_IPS="library/security/openssl library/zlib runtime/python-26
-	shell/bash system/library/g++-4-runtime system/library/gcc-4-runtime
+DEPENDS_IPS="library/security/openssl library/zlib runtime/python-27
+	shell/bash system/library/g++-5-runtime system/library/gcc-5-runtime
 	system/library/math system/library"
 BUILDARCH=64
 CONFIGURE_OPTS="--shared-zlib --prefix=$PREFIX"

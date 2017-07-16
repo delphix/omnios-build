@@ -24,13 +24,13 @@
 # Copyright 2016 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-# Copyright (c) 2016 by Delphix. All rights reserved.
+# Copyright (c) 2016, 2017 by Delphix. All rights reserved.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=pg_partman
-VER=2.2.3
+VER=3.0.2
 VERHUMAN=$VER
 PKG=omniti/database/postgresql-945/pg_partman
 SUMMARY="PostgreSQL Partition Management Extention"

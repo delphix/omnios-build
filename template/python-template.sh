@@ -36,7 +36,7 @@ SUMMARY=""      # Change this
 DESC=""         # Change this
 
 BUILD_DEPENDS_IPS=
-RUN_DEPENDS_IPS="runtime/python-26"
+RUN_DEPENDS_IPS="runtime/python-27"
 
 init
 download_source $PROG $PROG $VER

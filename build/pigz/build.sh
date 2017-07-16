@@ -22,7 +22,7 @@
 #
 
 #
-# Copyright (c) 2015 by Delphix. All rights reserved.
+# Copyright (c) 2015, 2017 by Delphix. All rights reserved.
 #
 
 # Load support functions
@@ -33,7 +33,7 @@ VER=2.3.3
 PKG=compress/pigz
 SUMMARY="$PROG - A parallel implementation of gzip for modern multi-processor, multi-core machines"
 DESC="$SUMMARY"
-DEPENDS_IPS="library/zlib@1.2.8"
+DEPENDS_IPS="library/zlib"
 BUILD_DEPENDS_IPS="$DEPENDS_IPS"
 MAKE="gmake"
 LDFLAGS64="-lz -m64"

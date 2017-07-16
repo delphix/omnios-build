@@ -21,7 +21,7 @@
 # CDDL HEADER END
 #
 #
-# Copyright (c) 2016 by Delphix. All rights reserved.
+# Copyright (c) 2016, 2017 by Delphix. All rights reserved.
 #
 # Load support functions
 . ../../lib/functions.sh
@@ -32,7 +32,7 @@ PKG=system/virtualization/walinuxagent
 SUMMARY="Azure Linux Agent"
 DESC="The Azure Linux Agent supports the provisioning and running of Linux VMs in the Azure cloud. This package should be installed on Linux disk images that are built to run in the Azure environment."
 
-DEPENDS_IPS="runtime/python-26"
+DEPENDS_IPS="runtime/python-27"
 
 init
 download_source $PROG $PROG $VER

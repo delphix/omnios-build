@@ -26,12 +26,15 @@
 #
 
 #
-# Copyright (c) 2016 by Delphix. All rights reserved.
+# Copyright (c) 2016, 2017 by Delphix. All rights reserved.
 #
 
 # Load support functions
 . ../../lib/functions.sh
 
+#
+# Source downloaded from ftp://ftp.home.vim.org/pub/vim/unix/vim-8.0.002.tar.bz2
+#
 # Patches are obtained from ftp://ftp.vim.org/pub/vim/patches/8.0/
 # To update, append each patch to patches/all-patches and set the
 # PATCHLEVEL variable below to match the number of the most recent

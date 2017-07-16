@@ -22,19 +22,20 @@
 #
 
 #
-# Copyright (c) 2015 by Delphix. All rights reserved.
+# Copyright (c) 2015, 2017 by Delphix. All rights reserved.
 #
 
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=jdk-8
-VER=60
+VER=131
 BUILDDIR=jdk1.8.0_$VER
 VERHUMAN=$VER
 PKG=developer/java/jdk-8
 SUMMARY="Java Platform Standard Edition Development"
 DESC="The Java Platform Standard Edition Development Kit (JDK) includes both the runtime environment (Java virtual machine, the Java platform classes and supporting files) and development tools (compilers, debuggers, tool libraries and other tools). The JDK is a development environment for building applications, applets and components that can be deployed with the Java Platform Standard Edition Runtime Environment."
+XFORM_ARGS="-D VER=$VER"
 
 BUILD_DEPENDS_IPS=pkg:/archiver/gnu-tar
 RUN_DEPENDS_IPS=
