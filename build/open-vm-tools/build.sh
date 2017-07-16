@@ -37,7 +37,7 @@ SUMMARY="Open Virtual Machine Tools"
 DESC="The Open Virtual Machine Tools project aims to provide a suite of open source virtualization utilities and drivers to improve the functionality and user experience of virtualization. The project currently runs in guest operating systems under the VMware hypervisor."
 
 BUILD_DEPENDS_IPS='developer/pkg-config'
-RUN_DEPENDS_IPS='library/glib2 system/library/gcc-4-runtime'
+RUN_DEPENDS_IPS='library/glib2 system/library/gcc-5-runtime'
 
 install_smf() {
 	logmsg "Installing SMF components"

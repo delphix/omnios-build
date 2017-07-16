@@ -207,7 +207,7 @@ url_encode() {
 LANG=C
 export LANG
 # Set the path - This can be overriden/extended in the build script
-PATH="/opt/gcc-4.8.1/bin:/usr/ccs/bin:/usr/bin:/usr/sbin:/usr/gnu/bin:/usr/sfw/bin"
+PATH="/opt/gcc-5.1.0/bin:/usr/ccs/bin:/usr/bin:/usr/sbin:/usr/gnu/bin:/usr/sfw/bin"
 export PATH
 # The dir where this file is located - used for sourcing further files
 MYDIR=$PWD/`dirname $BASH_SOURCE[0]`
@@ -232,7 +232,7 @@ shift $((OPTIND - 1))
 
 BasicRequirements(){
     local needed=""
-    [[ -x /opt/gcc-4.8.1/bin/gcc ]] || needed+=" developer/gcc48"
+    [[ -x /opt/gcc-5.1.0/bin/gcc ]] || needed+=" developer/gcc51"
     [[ -x /usr/bin/ar ]] || needed+=" developer/object-file"
     [[ -x /usr/bin/ld ]] || needed+=" developer/linker"
     [[ -f /usr/lib/crt1.o ]] || needed+=" developer/library/lint"
@@ -390,6 +390,16 @@ run_autoreconf_i() {
     logmsg "Running autoreconf -i"
     pushd $TMPDIR/$BUILDDIR > /dev/null
     logcmd autoreconf -i || logerr "Failed to run autoreconf"
+    popd > /dev/null
+}
+
+#############################################################################
+# People that need this should call it explicitly
+#############################################################################
+run_automake() {
+    logmsg "Running automake"
+    pushd $TMPDIR/$BUILDDIR > /dev/null
+    logcmd automake || logerr "Failed to run automake"
     popd > /dev/null
 }
 
@@ -683,9 +693,7 @@ make_package() {
         LOCAL_MOG_FILE=$SRCDIR/local.mog
     fi
     logmsg "--- Applying transforms"
-    $PKGMOGRIFY -DVER="$VER" -DPROG="$PROG" -DPKG="$PKG" \
-        $P5M_INT $MY_MOG_FILE $GLOBAL_MOG_FILE $LOCAL_MOG_FILE $* | \
-        $PKGFMT -u > $P5M_INT2
+    $PKGMOGRIFY $XFORM_ARGS $P5M_INT $MY_MOG_FILE $GLOBAL_MOG_FILE $LOCAL_MOG_FILE $* | $PKGFMT -u > $P5M_INT2
     logmsg "--- Resolving dependencies"
     (
         set -e
@@ -738,7 +746,8 @@ make_package() {
             fi
             if $autoresolved && [ "$DEPTYPE" = "require" ]; then
                 if $explicit_ver; then
-                    echo "<transform depend fmri=(.+/)?$depname -> set fmri $i>" >> $MANUAL_DEPS
+                    escaped_depname="$(python -c "import re; print re.escape(r'$depname')")"
+                    echo "<transform depend fmri=(.+/)?$escaped_depname -> set fmri $i>" >> $MANUAL_DEPS
                 fi
             else
                 echo "depend type=$DEPTYPE fmri=$i" >> $MANUAL_DEPS
@@ -1025,7 +1034,7 @@ python_build() {
         logerr "--- install failed"
     popd > /dev/null
 
-    mv $DESTDIR/usr/lib/python2.6/site-packages $DESTDIR/usr/lib/python2.6/vendor-packages ||
+    mv $DESTDIR/usr/lib/python$PYTHONVER/site-packages $DESTDIR/usr/lib/python$PYTHONVER/vendor-packages ||
         logerr "Cannot move from site-packages to vendor-packages"
 }
 
@@ -1245,8 +1254,8 @@ wait_for_prebuilt() {
     nightly_pid=`ls -lt $PREBUILT_ILLUMOS/log/nightly.lock | awk -F. '{print $4}'`
     # Wait for nightly to be finished if it's running.
     logmsg "Waiting for illumos nightly build $nightly_pid to be finished."
-    logmsg "Amount of time waiting for illumos nightly follows."
-    logcmd /bin/time pwait $nightly_pid
+    logmsg "Time spent waiting via time(1) printed below."
+    logcmd "`/bin/time pwait $nightly_pid`"
     if [ -h $PREBUILT_ILLUMOS/log/nightly.lock ]; then
         logmsg "Nightly lock present, but build not running.  Bailing."
         if [[ -z $BATCH ]]; then
@@ -1255,6 +1264,15 @@ wait_for_prebuilt() {
         clean_up
         exit 1
     fi
+}
+
+# Change the PYTHON version so we can perform version-agile Python tricks.
+set_python_version() {
+    PYTHONVER=$1
+    PYTHONPKGVER=`echo $PYTHONVER | sed 's/\.//g'`
+    # Assume PYTHONPATH from config.sh is a constant.
+    PYTHON=$PYTHONPATH/bin/python$PYTHONVER
+    PYTHONLIB=$PYTHONPATH/lib
 }
 
 # Vim hints

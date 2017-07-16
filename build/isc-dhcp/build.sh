@@ -14,13 +14,13 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2014 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2015 OmniTI Computer Consulting, Inc.  All rights reserved.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=dhcp
-VER=4.3.1
+VER=4.3.5
 VERHUMAN=$VER
 PKG=network/service/isc-dhcp
 SUMMARY="ISC DHCP"
@@ -30,6 +30,12 @@ DEPENDS_IPS="system/library"
 
 # XXX 32-bit until Y2038 rears its ugly head.
 BUILDARCH=32
+
+# Doesn't work with parallel gmake
+NO_PARALLEL_MAKE=1
+
+# Use old gcc4 standards level for this.
+export CFLAGS="$CFLAGS -std=gnu89"
 
 CONFIGURE_OPTS="--enable-use-sockets --enable-ipv4-pktinfo --prefix=$PREFIX --bindir=$PREFIX/bin --sbindir=$PREFIX/sbin"
 
@@ -60,6 +66,8 @@ prep_build
 build
 # Make directories in the proto area prior to the package being built.
 pre_package
+VER=${VER//-P/.}
+VER=${VER//-W/.}
 make_package
 clean_up
 

@@ -1,0 +1,3 @@
+license LICENSE license=MIT
+
+<transform file path=usr/bin/mako-render -> drop>

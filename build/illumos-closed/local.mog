@@ -1,0 +1,2 @@
+license opt/onbld/closed/BINARYLICENSE.txt license=binary
+<transform file path=opt/onbld/closed/.* -> set pkg.depend.bypass-generate .*>

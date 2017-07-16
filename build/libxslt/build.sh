@@ -21,14 +21,14 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2016 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=libxslt
-VER=1.1.28
+VER=1.1.29
 PKG=library/libxslt
 SUMMARY="The XSLT library"
 DESC="$SUMMARY"
@@ -40,8 +40,8 @@ CFLAGS64="$CFLAGS64 -D_LARGEFILE_SOURCE"
 LDFLAGS="-lpthread"
 
 CONFIGURE_OPTS="--disable-static --with-pic --with-threads --without-crypto"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 --with-python=/usr/bin/$ISAPART/python2.6"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --with-python=/usr/bin/$ISAPART64/python2.6"
+CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 --with-python=/usr/bin/$ISAPART/python2.7"
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --with-python=/usr/bin/$ISAPART64/python2.7"
 
 NO_PARALLEL_MAKE="true"
 

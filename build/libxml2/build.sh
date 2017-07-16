@@ -28,19 +28,21 @@
 . ../../lib/functions.sh
 
 PROG=libxml2        # App name
-VER=2.9.1           # App version
+VER=2.9.4           # App version
 PKG=library/libxml2 # Package name (without prefix)
 SUMMARY="$PROG - XML C parser and toolkit"
 DESC="$SUMMARY"
 
-DEPENDS_IPS="compress/xz@5.0 system/library/gcc-4-runtime library/zlib@1.2.8"
+DEPENDS_IPS="compress/xz system/library/gcc-5-runtime library/zlib"
 BUILD_DEPENDS_IPS="$DEPENDS_IPS developer/sunstudio12.1"
+# Keep python tied to the version we're supporting, to aid future changes.
+CONFIGURE_OPTS="--with-python=/usr/bin/python2.7"
 
 fix_python_install() {
-    logcmd mkdir -p $DESTDIR/usr/lib/python2.6/vendor-packages
-    logcmd mv $DESTDIR/usr/lib/python2.6/site-packages/* $DESTDIR/usr/lib/python2.6/vendor-packages/ || logerr "failed relocating python install"
-    logcmd rm -f $DESTDIR/usr/lib/python2.6/vendor-packages/64/drv_libxml2.py
-    logcmd rm -rf $DESTDIR/usr/lib/python2.6/site-packages || logerr "failed removing bad python install"
+    logcmd mkdir -p $DESTDIR/usr/lib/python2.7/vendor-packages
+    logcmd mv $DESTDIR/usr/lib/python2.7/site-packages/* $DESTDIR/usr/lib/python2.7/vendor-packages/ || logerr "failed relocating python install"
+    logcmd rm -f $DESTDIR/usr/lib/python2.7/vendor-packages/64/drv_libxml2.py
+    logcmd rm -rf $DESTDIR/usr/lib/python2.7/site-packages || logerr "failed removing bad python install"
     logcmd rm -rf $DESTDIR/usr/include/amd64 || logerr "failed removing bad includes install"
 }
 
@@ -71,9 +73,28 @@ make_install64() {
         logerr "libtool libxml2mod.la patch failed"
 
     logcmd $MAKE DESTDIR=${DESTDIR} \
-        PYTHON_SITE_PACKAGES=/usr/lib/python2.6/site-packages/64 \
+        PYTHON_SITE_PACKAGES=/usr/lib/python2.7/site-packages/64 \
         install || \
         logerr "--- Make install failed"
+}
+
+# Relocate the libs to /lib, to match upstream
+move_libs() {
+    logcmd mkdir -p $DESTDIR/lib/amd64
+    logcmd mv $DESTDIR/usr/lib/lib* $DESTDIR/lib || \
+        logerr "failed to move libs (32-bit)"
+    logcmd mv $DESTDIR/usr/lib/amd64/lib* $DESTDIR/lib/amd64 || \
+        logerr "failed to move libs (64-bit)"
+    pushd $DESTDIR/usr/lib >/dev/null
+    logcmd ln -s ../../lib/libxml2.so.$VER libxml2.so
+    logcmd ln -s ../../lib/libxml2.so.$VER libxml2.so.2
+    logcmd ln -s ../../lib/libxml2.so.$VER libxml2.so.$VER
+    popd >/dev/null
+    pushd $DESTDIR/usr/lib/amd64 >/dev/null
+    logcmd ln -s ../../../lib/64/libxml2.so.$VER libxml2.so
+    logcmd ln -s ../../../lib/64/libxml2.so.$VER libxml2.so.2
+    logcmd ln -s ../../../lib/64/libxml2.so.$VER libxml2.so.$VER
+    popd>/dev/null
 }
 
 init
@@ -85,5 +106,6 @@ make_lintlibs xml2 /usr/lib /usr/include/libxml2 "libxml/*.h"
 fix_python_install
 make_isa_stub
 install_license
+move_libs
 make_package
 clean_up

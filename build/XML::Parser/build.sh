@@ -4,13 +4,13 @@
 . ../../lib/functions.sh
 
 if [ -z "$DEPVER" ]; then
-    DEPVER=5.16.1
+    DEPVER=5.24.1
 fi
 
 AUTHORID=TODDR
 PROG=XML-Parser
 MODNAME=XML::Parser
-VER=2.41
+VER=2.44
 VERHUMAN=$VER
 PKG=library/perl-5/xml-parser
 SUMMARY="XML::Parser perl module ($VER)"

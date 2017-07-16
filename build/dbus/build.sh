@@ -21,20 +21,22 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=dbus
-VER=1.6.8
+VER=1.11.12
 PKG=dbus ##IGNORE##
 SUMMARY="$PROG - IPC-based message notifications"
 DESC="$SUMMARY"
 
 DEPENDS_IPS="SUNWcs"
 
+# Use old gcc4 standards level for this.
+CFLAGS="$CFLAGS -std=gnu89"
 CPPFLAGS="$CPPFLAGS -D__EXTENSIONS__ -D_REENTRANT"
 CONFIGURE_OPTS="--with-x=no --with-dbus-user=root --disable-static --with-dbus-daemondir=/usr/lib
 	--bindir=/usr/bin --localstatedir=/var --libexecdir=/usr/libexec"

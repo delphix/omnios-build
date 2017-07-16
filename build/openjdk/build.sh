@@ -21,7 +21,7 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2016 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 # Copyright (c) 2014 by Delphix. All rights reserved.
 #
@@ -30,13 +30,19 @@
 
 PROG=openjdk
 VER=1.7.0
-UPDATE=76
-BUILD=31
+UPDATE=101
+BUILD=00
 VERHUMAN="jdk7u${UPDATE}-b${BUILD}"
+
+# Taken from illumos...
+# Magic variables to prevent the devpro compilers/teamware from checking
+# for updates or sending mail back to devpro on every use.
+export SUNW_NO_UPDATE_NOTIFY='1'
+export UT_NO_USAGE_TRACKING='1'
 
 # Mercurial hash from jdk7u repo marking the desired update/build
 # taken from http://hg.openjdk.java.net/jdk7u/jdk7u/file/tip/.hgtags
-HGREV=ed58c355d118cb3d9713de41ecb105cca3175472
+HGREV=12491db47c7ccffcc3e881df68f4c2f727b44e5d
 
 PKG=
 SUMMARY="x"
@@ -62,6 +68,9 @@ J2RE_INSTALLTMP=
 J2SDK_INSTALLTMP=
 
 download_hg() {
+    if [[ ! -d $TMPDIR ]]; then
+	mkdir $TMPDIR
+    fi
     pushd $TMPDIR > /dev/null
     if [[ -d $BUILDDIR ]]; then
         logmsg "Removing existing checkout"
@@ -100,7 +109,20 @@ install_x11_headers() {
 fetch_source() {
     logmsg "Fetching JDK source"
     pushd $TMPDIR/$BUILDDIR > /dev/null
-    logcmd sh ./get_source.sh
+    i=0
+    # Make sure this list of directories is current with your OpenJDK
+    # get_source.sh/README.
+    while [[ ! -d corba || ! -d langtools || ! -d hotspot || ! -d jaxp || ! -d jdk || ! -d jaxws ]]; do
+	i=`expr $i + 1`
+	logmsg "Running get_source (try $i)"
+	logcmd sh ./get_source.sh
+	# Limit to 10 tries
+	if [[ $i == 10 ]]; then
+		logmsg "Mercurial problems with OpenJDK source. Got directories:"
+		logcmd ls -Fd corba langtools hotspot jaxp jaxws jdk
+		logerr "--- get_source failed after $i tries"
+	fi
+    done
     popd > /dev/null
 }
 

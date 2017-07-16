@@ -21,25 +21,25 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2016 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=tmux
-VER=1.9a
+VER=2.3
 VERHUMAN=$VER
 PKG=terminal/tmux
 SUMMARY="terminal multiplexer"
 DESC="$SUMMARY"
-LIBEVENT_VER=2.0.20
+LIBEVENT_VER=2.0.22
 LDIR=libevent-${LIBEVENT_VER}-stable
 
 BUILDARCH=32
 CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 --bindir=/usr/bin"
 CPPFLAGS="-I$TMPDIR/$PROG-$VER/$LDIR/include/event2 \
-    -I$TMPDIR/$PROG-$VER/$LDIR/include"
+    -I$TMPDIR/$PROG-$VER/$LDIR/include -I/usr/include/ncurses"
 CFLAGS="-std=c99 -D_XPG6 -D_POSIX_C_SOURCE=200112L"
 LDFLAGS="-L$TMPDIR/$PROG-$VER/$LDIR/.libs -lsocket -lnsl -lsendfile"
 
@@ -49,7 +49,11 @@ configure32(){
   logmsg "configuring libevent"
   logcmd ./configure --disable-static --disable-libevent-install || \
     logerr "failed libevent configure"
-  logcmd "building a static libevent"
+  logmsg "building a static libevent"
+  # Ewww, we have to patch libevent as well. Change PATCHDIR for now...
+  PATCHDIR=patches-libevent
+  patch_source
+  PATCHDIR=patches
   logcmd make || logerr "failed libevent build"
   popd > /dev/null
   configure32_orig

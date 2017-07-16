@@ -21,18 +21,22 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=iso-codes
-VER=3.57
+VER=3.74
 VERHUMAN=$VER
 PKG=data/iso-codes
 SUMMARY="ISO code lists and translations"
 DESC="$SUMMARY"
+
+# As of 3.70, iso-codes needs Python3 to build. Make sure python3 is around.
+BUILD_DEPENDS_IPS="omniti/runtime/python-34"
+export PATH=/opt/python34/bin:$PATH
 
 BUILDARCH=32
 

@@ -21,19 +21,19 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=mercurial
-VER=2.7.1
+VER=4.1.3
 PKG=developer/versioning/mercurial
 SUMMARY="$PROG - a free and open source, distributed version control system"
 DESC="$SUMMARY"
 
-DEPENDS_IPS="runtime/python-26 \
+DEPENDS_IPS="runtime/python-27 \
              web/curl \
              library/security/openssl@1.0.2
              library/zlib"
@@ -42,7 +42,7 @@ DEPENDS_IPS="runtime/python-26 \
 CONFIGURE_OPTS=""
 
 PYTHONPATH=/usr
-PYTHON=$PYTHONPATH/bin/python2.6
+PYTHON=$PYTHONPATH/bin/python2.7
 PYTHONLIB=$PYTHONPATH/lib
 
 python_build() {
@@ -69,7 +69,7 @@ python_build() {
         logerr "--- install failed"
     popd > /dev/null
 
-    mv $DESTDIR/usr/lib/python2.6/site-packages $DESTDIR/usr/lib/python2.6/vendor-packages ||
+    mv $DESTDIR/usr/lib/python2.7/site-packages $DESTDIR/usr/lib/python2.7/vendor-packages ||
         logerr "Cannot move from site-packages to vendor-packages"
 }
 

@@ -28,13 +28,13 @@
 . ../../lib/functions.sh
 
 PROG=unixODBC
-VER=2.3.2
+VER=2.3.4
 VERHUMAN=$VER
 PKG=library/unixodbc
 SUMMARY="The UnixODBC Subsystem and SDK"
 DESC="UnixODBC - The UnixODBC Subsystem and SDK ($VER)"
 
-DEPENDS_IPS="system/library system/library/math system/library/gcc-4-runtime"
+DEPENDS_IPS="system/library system/library/math system/library/gcc-5-runtime"
 
 CONFIGURE_OPTS="
     --includedir=$PREFIX/include/odbc

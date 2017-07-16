@@ -21,7 +21,7 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 # Copyright (c) 2014 by Delphix. All rights reserved.
 #
@@ -29,14 +29,14 @@
 . ../../lib/functions.sh
 
 PROG=git
-VER=2.3.0
+VER=2.13.0
 PKG=developer/versioning/git
 SUMMARY="$PROG - a free and open source, distributed version control system"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS="compatibility/ucb developer/build/autoconf"
+BUILD_DEPENDS_IPS="compatibility/ucb developer/build/autoconf archiver/gnu-tar"
 
-DEPENDS_IPS="runtime/python-26 \
+DEPENDS_IPS="runtime/python-27 \
              web/curl \
              library/security/openssl@1.0.2 \
              library/zlib"
@@ -46,8 +46,10 @@ TAR=gtar
 # For inet_ntop which isn't detected properly in the configure script
 LDFLAGS="-lnsl"
 CFLAGS64="$CFLAGS64 -I/usr/include/amd64"
+# Explicitly call out python version to make future python version bumps
+# smoother.
 CONFIGURE_OPTS="--without-tcltk
-    --with-python=/usr/bin/python
+    --with-python=/usr/bin/python2.7
     --with-curl=/usr
     --with-openssl=/usr"
 

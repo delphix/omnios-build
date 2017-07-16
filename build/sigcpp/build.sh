@@ -21,20 +21,20 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=libsigc++
-VER=2.4.0
+VER=2.99.8
 VERHUMAN=$VER
 PKG=library/c++/sigcpp
 SUMMARY="Libsigc++ - a library that implements typesafe callback system"
 DESC="$SUMMARY"
 
-DEPENDS_IPS="system/library system/library/math system/library/g++-4-runtime"
+DEPENDS_IPS="system/library system/library/math system/library/g++-5-runtime"
 
 MAKE=/bin/gmake
 export MAKE

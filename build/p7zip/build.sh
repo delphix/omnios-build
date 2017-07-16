@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=p7zip
-VER=9.20.1
+VER=16.02
 VERHUMAN=$VER
 PKG=compress/p7zip
 SUMMARY="The p7zip compression and archiving utility"
@@ -38,7 +38,7 @@ SRCVER="${VER}_src_all"
 BUILDDIR=${PROG}_${VER}
 BUILDARCH=32
 
-DEPENDS_IPS="system/library/g++-4-runtime system/library/gcc-4-runtime shell/bash"
+DEPENDS_IPS="system/library/g++-5-runtime system/library/gcc-5-runtime shell/bash"
 
 configure32() {
     DEST_HOME=$PREFIX

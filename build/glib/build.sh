@@ -30,15 +30,18 @@
 . ../../lib/functions.sh
 
 PROG=glib
-VER=2.40.0
+VER=2.34.3
 PKG=library/glib2
 SUMMARY="$PROG - GNOME GLib utility library"
 DESC="$SUMMARY"
 
 DEPENDS_IPS="SUNWcs library/libffi@$FFIVERS library/zlib system/library
-	system/library/gcc-4-runtime runtime/perl"
+	system/library/gcc-5-runtime runtime/perl"
 
-CONFIGURE_OPTS="--disable-fam --disable-dtrace"
+# Use old gcc4 standards level for this.
+export CFLAGS="$CFLAGS -std=gnu89"
+
+CONFIGURE_OPTS="--disable-fam --disable-dtrace --with-threads=posix"
 
 save_function configure32 configure32_orig
 save_function configure64 configure64_orig

@@ -21,15 +21,14 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=gmp
-# NOTE: The GMP upstream calls it 6.0.0a, but it untars to 6.0.0.
-VER=6.0.0
+VER=6.1.2
 VERHUMAN=$VER
 PKG=library/gmp
 SUMMARY="GNU MP $VER"
@@ -95,6 +94,7 @@ fix_header_files() {
 
 init
 download_source $PROG $PROG $VER
+patch_source
 prep_build
 build
 fix_header_files

@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=ipmitool
-VER=1.8.15
+VER=1.8.16
 VERHUMAN=$VER
 PKG=system/management/ipmitool
 SUMMARY="IPMI management tool"
@@ -39,7 +39,8 @@ BUILD_DEPENDS_IPS="driver/ipmi"
 BUILDARCH=32
 CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 --bindir=/usr/sbin --sbindir=/usr/lib"
 CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=/usr/share/man
-	--enable-intf-free=no
+	--enable-intf-free=yes
+	--enable-intf-usb=no
 	--enable-solaris-opt"
 
 install_smf(){
@@ -49,9 +50,17 @@ install_smf(){
     logcmd cp $SRCDIR/files/svc-ipmievd $DESTDIR/lib/svc/method/svc-ipmievd
 }
 
+auto_reconf() {
+	# This package doesn't like aclocal 1.15.  Fix it!
+	pushd $TMPDIR/$BUILDDIR
+	autoreconf -fi
+	popd
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
+auto_reconf
 prep_build
 run_autoconf
 build

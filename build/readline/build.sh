@@ -21,20 +21,20 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2016 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=readline
-VER=6.3
+VER=7.0
 VERHUMAN=$VER
 PKG=library/readline
 SUMMARY="GNU readline"
 DESC="GNU readline library ($VER)"
 
-DEPENDS_IPS="system/library system/library/gcc-4-runtime"
+DEPENDS_IPS="system/library system/library/gcc-5-runtime"
 
 CONFIGURE_OPTS="--disable-static"
 
@@ -51,6 +51,18 @@ make_prog() {
         logerr "--- Make failed"
 }
 
+copy_version6() {
+    # Keep the r151018 version 6.3 library around for older apps.
+    # On the off chance we do non-x86/amd64 architectures, this'll get more
+    # complicated.
+    logcmd cp $SRCDIR/files/libreadline.so.6 $SRCDIR/files/libhistory.so.6 \
+	$DESTDIR$PREFIX/lib/. || logerr "--- Copying of v6.3 libraries failed"
+    logcmd cp $SRCDIR/files/amd64/libreadline.so.6 \
+	$SRCDIR/files/amd64/libhistory.so.6 $DESTDIR$PREFIX/lib/$ISAPART64/. \
+	|| logerr "--- Copying of 64-bit v6.3 libraries failed"
+}
+
+
 init
 download_source $PROG $PROG $VER
 patch_source
@@ -58,6 +70,7 @@ prep_build
 build
 make_isa_stub
 fix_permissions
+copy_version6
 make_package
 clean_up
 

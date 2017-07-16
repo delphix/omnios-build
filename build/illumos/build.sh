@@ -42,8 +42,7 @@ SUMMARY="$PROG" # A short summary of what the app is, starting with its name
 DESC="$SUMMARY -- Illumos and some special sauce." # Longer description
 
 #all of the ips depends should be available from OmniTI repos
-
-BUILD_DEPENDS_IPS="developer/astdev developer/build/make developer/build/onbld developer/gcc44 developer/java/jdk developer/lexer/flex developer/object-file developer/parser/bison library/glib2 library/libxml2 library/libxslt library/nspr/header-nspr library/perl-5/xml-parser library/security/trousers runtime/perl runtime/perl-64 runtime/perl/manual system/library/install system/library/dbus system/library/libdbus system/library/libdbus-glib system/library/mozilla-nss/header-nss system/management/snmp/net-snmp text/gnu-gettext sunstudio12.1"
+BUILD_DEPENDS_IPS="developer/illumos-tools"
 
 GIT=git
 
@@ -57,9 +56,9 @@ CODEMGR_WS=$TMPDIR/$BUILDDIR/illumos-omnios
 
 #Since these variables are used in a sed statment make sure to escape properly
 ILLUMOS_NO="NIGHTLY\_OPTIONS=\'\-nDCmpr\'"
-ILLUMOS_CODEMGR_WS="CODEMGR\_WS=\/code\/$BUILDDIR\/illumos\-omnios"
-#ILLUMOS_CLONE_WS="CLONE\_WS=\'ssh:\/\/anonhg@hg.illumos.org\/illumos\-gate\'"
-ILLUMOS_CLONE_WS="CLONE\_WS=\'anon@src.omniti.com:~omnios\/core\/illumos\-omnios\'"
+ILLUMOS_CODEMGR_WS="CODEMGR\_WS=/code/$BUILDDIR/illumos\-omnios"
+#ILLUMOS_CLONE_WS="CLONE\_WS=\'ssh://anonhg@hg.illumos.org/illumos\-gate\'"
+ILLUMOS_CLONE_WS="CLONE\_WS=\'anon@src.omniti.com:~omnios/core/illumos\-omnios\'"
 
 ILLUMOS_PKG_REDIST="PKGPUBLISHER\_REDIST=\'omnios\'"
 
@@ -99,7 +98,9 @@ clone_source(){
             logerr "--- Failed to clone source"
     fi
     pushd illumos-omnios 
-    ILLUMOS_VERSION="VERSION=\'omnios\-`$GIT log --pretty=format:'%h' -n 1`'" 
+    OMNIOS_BRANCH=`$GIT branch | awk '{print $2}'`
+    OMNIOS_HEAD=`$GIT log --pretty=format:'%h' -n 1`
+    ILLUMOS_VERSION="VERSION='omnios-${OMNIOS_BRANCH}-${OMNIOS_HEAD}'" 
     RELEASE_DATE=`$GIT show --format=format:%ai | awk '{print $1; exit;}' | tr - .` 
     echo $ILLUMOS_VERSION
     popd > /dev/null 
@@ -122,8 +123,16 @@ modify_build_script() {
     pushd $CODEMGR_WS > /dev/null
     logmsg "Changing illumos.sh variables to what we want them to be..."
     logcmd cp usr/src/tools/env/illumos.sh .    
-    logcmd /usr/bin/gsed -i -e 's/^.*export NIGHTLY_OPTIONS.*/export '$ILLUMOS_NO'/g;s/^.*export CODEMGR_WS=.*/export '$ILLUMOS_CODEMGR_WS'/g;s/^.*export CLONE_WS=.*/export '$ILLUMOS_CLONE_WS'/g;s/^.*export PKGPUBLISHER_REDIST=.*/export '$ILLUMOS_PKG_REDIST'/g;s/^.*export VERSION=.*/export '$ILLUMOS_VERSION'/g;/^.*GNUC=.*/d;/^.*CW_NO_SHADOW=.*/d;/^.*ONNV_BUILDNUM=.*/d' illumos.sh || \
-        logerr "/usr/bin/gsed failed"
+
+    logcmd /usr/bin/gsed -i -e 's|^.*export NIGHTLY_OPTIONS.*|export '$ILLUMOS_NO'|g' illumos.sh || logerr "/usr/bin/gsed failed nightly"
+    logcmd /usr/bin/gsed -i -e 's|^.*export CODEMGR_WS=.*|export '$ILLUMOS_CODEMGR_WS'|g' illumos.sh || logerr "/usr/bin/gsed failed codemgr"
+    logcmd /usr/bin/gsed -i -e 's|^.*export CLONE_WS=.*|export '$ILLUMOS_CLONE_WS'|g' illumos.sh || logerr "/usr/bin/gsed failed clone"
+    logcmd /usr/bin/gsed -i -e 's|^.*export PKGPUBLISHER_REDIST=.*|export '$ILLUMOS_PKG_REDIST'|g' illumos.sh || logerr "/usr/bin/gsed failed publisher"
+    logcmd /usr/bin/gsed -i -e 's|^.*export VERSION=.*|export '$ILLUMOS_VERSION'|g' illumos.sh || logerr "/usr/bin/gsed failed version"
+    logcmd /usr/bin/gsed -i -e '/^.*GNUC=.*/d' illumos.sh || logerr "/usr/bin/gsed failed gnuc"
+    logcmd /usr/bin/gsed -i -e '/^.*CW_NO_SHADOW=.*/d' illumos.sh || logerr "/usr/bin/gsed failed cwnoshadow"
+    logcmd /usr/bin/gsed -i -e '/^.*ONNV_BUILDNUM=.*/d' illumos.sh || logerr "/usr/bin/gsed failed buildnum"
+
     logcmd `echo $ILLUMOS_GNUC >> illumos.sh` 
     logcmd `echo $ILLUMOS_GNUC4 >> illumos.sh` 
     logcmd `echo $ILLUMOS_GCC_ROOT >> illumos.sh` 
@@ -170,7 +179,20 @@ push_pkgs() {
         logmsg "Intentional pause: Last chance to sanity-check before publication!"
         ask_to_continue
     fi
-    logcmd pkgrecv -s packages/i386/nightly-nd/repo.redist/ -d $PKGSRVR 'pkg:/*'
+
+    # Before, we used to just send out the non-DEBUG illumos packages.
+    #logcmd pkgrecv -s packages/i386/nightly-nd/repo.redist/ -d $PKGSRVR 'pkg:/*'
+    # NOW, however, we use pkgmerge to set pkg(5) variants for non-DEBUG *and*
+    # DEBUG.  The idea is, if someone wants to shift their illumos from
+    # non-DEBUG (default) to DEBUG, they can simply utter:
+    #
+    #      pkg change-variant debug.illumos=true
+    #
+    # and a new BE with DEBUG bits appears.
+    logcmd pkgmerge -d $PKGSRVR \
+	-s debug.illumos=false,packages/i386/nightly-nd/repo.redist/ \
+	-s debug.illumos=true,packages/i386/nightly/repo.redist/
+
     logmsg "Leaving $CODEMGR_WS"
     popd > /dev/null
 }

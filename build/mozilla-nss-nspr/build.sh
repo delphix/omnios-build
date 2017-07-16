@@ -21,16 +21,16 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2014 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=nss
-VER=3.17.4
+VER=3.30.2
 # Include NSPR version since we're downloading a combined tarball.
-NSPRVER=4.10.7
+NSPRVER=4.14
 # But set BUILDDIR to just be the NSS version.
 BUILDDIR=$PROG-$VER
 VERHUMAN=$VER
@@ -148,7 +148,7 @@ SUMMARY="Network Security Services Headers"
 DESC="$SUMMARY"
 make_package header-nss.mog
 
-DEPENDS_IPS="SUNWcs system/library/gcc-4-runtime system/library
+DEPENDS_IPS="SUNWcs system/library/gcc-5-runtime system/library
 	library/nspr database/sqlite-3"
 PKG=system/library/mozilla-nss
 SUMMARY="Network Security Services Libraries"
@@ -202,7 +202,7 @@ SUMMARY="Netscape Portable Runtime Headers"
 DESC="$SUMMARY"
 make_package header-nspr.mog
 
-DEPENDS_IPS="SUNWcs system/library/gcc-4-runtime system/library"
+DEPENDS_IPS="SUNWcs system/library/gcc-5-runtime system/library"
 PKG=library/nspr
 SUMMARY="Netscape Portable Runtime"
 DESC="$SUMMARY"

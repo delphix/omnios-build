@@ -21,21 +21,35 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=openssl
-VER=1.0.2a
+VER=1.0.2k
 VERHUMAN=$VER
 PKG=library/security/openssl # Package name (without prefix)
 SUMMARY="$PROG - A toolkit for Secure Sockets Layer (SSL v2/v3) and Transport Layer (TLS v1) protocols and general purpose cryptographic library"
 DESC="$SUMMARY"
 
-DEPENDS_IPS="SUNWcs system/library system/library/gcc-4-runtime library/zlib@1.2.8"
+DEPENDS_IPS="SUNWcs system/library system/library/gcc-5-runtime library/zlib@1.2.11"
 BUILD_DEPENDS_IPS="$DEPENDS_IPS developer/sunstudio12.1"
+
+# Generic configure optons for both 32 and 64bit variants
+OPENSSL_CONFIG_OPTS="
+		--pk11-libname=/usr/lib/libpkcs11.so.1 
+		shared
+		threads
+		zlib
+		enable-ssl2"
+
+# Configure options specific to a 32bit build
+OPENSSL_CONFIG_32_OPTS=""
+
+# Configure options specific to a 64bit build
+OPENSSL_CONFIG_64_OPTS="enable-ec_nistp_64_gcc_128"
 
 NO_PARALLEL_MAKE=1
 
@@ -57,8 +71,10 @@ configure32() {
       SSLPLAT=solaris-x86-gcc
     fi
     logmsg "--- Configure (32-bit) $SSLPLAT"
-    logcmd ./Configure $SSLPLAT --pk11-libname=/usr/lib/libpkcs11.so.1 shared threads zlib enable-md2 --prefix=$PREFIX ||
-        logerr "Failed to run configure"
+    logcmd ./Configure $SSLPLAT --prefix=$PREFIX \
+	${OPENSSL_CONFIG_OPTS} \
+	${OPENSSL_CONFIG_32_OPTS} \
+        || logerr "Failed to run configure"
     SHARED_LDFLAGS="-shared -Wl,-z,text"
 }
 configure64() {
@@ -68,9 +84,10 @@ configure64() {
       SSLPLAT=solaris64-x86_64-gcc
     fi
     logmsg "--- Configure (64-bit) $SSLPLAT"
-    logcmd ./Configure $SSLPLAT --pk11-libname=/usr/lib/64/libpkcs11.so.1 shared threads zlib enable-md2 \
-        --prefix=$PREFIX ||
-        logerr "Failed ot run configure"
+    logcmd ./Configure $SSLPLAT --prefix=$PREFIX \
+	${OPENSSL_CONFIG_OPTS} \
+	${OPENSSL_CONFIG_64_OPTS} \
+        || logerr "Failed to run configure"
     SHARED_LDFLAGS="-m64 -shared -Wl,-z,text"
 }
 
@@ -85,7 +102,7 @@ move_libs() {
     logmsg "link up certs"
     logcmd rmdir $DESTDIR/usr/ssl/certs ||
         logerr "Failed to remove /usr/ssl/certs"
-    logcmd ln -s /etc/ssl/certs $DESTDIR/usr/ssl/certs ||
+    logcmd ln -s ../../etc/ssl/certs $DESTDIR/usr/ssl/certs ||
         logerr "Failed to link up /usr/ssl/certs -> /etc/ssl/certs"
     logmsg "Relocating libs from usr/lib to lib"
     logcmd mv $DESTDIR/usr/lib/64 $DESTDIR/usr/lib/amd64
@@ -96,16 +113,16 @@ move_libs() {
         logerr "Failed to move libs (64-bit)"
     logmsg "--- Making usr/lib symlinks"
     pushd $DESTDIR/usr/lib > /dev/null
-    logcmd ln -s /lib/libssl.so.1.0.0 libssl.so
-    logcmd ln -s /lib/libssl.so.1.0.0 libssl.so.1.0.0
-    logcmd ln -s /lib/libcrypto.so.1.0.0 libcrypto.so
-    logcmd ln -s /lib/libcrypto.so.1.0.0 libcrypto.so.1.0.0
+    logcmd ln -s ../../lib/libssl.so.1.0.0 libssl.so
+    logcmd ln -s ../../lib/libssl.so.1.0.0 libssl.so.1.0.0
+    logcmd ln -s ../../lib/libcrypto.so.1.0.0 libcrypto.so
+    logcmd ln -s ../../lib/libcrypto.so.1.0.0 libcrypto.so.1.0.0
     popd > /dev/null
     pushd $DESTDIR/usr/lib/amd64 > /dev/null
-    logcmd ln -s /lib/amd64/libssl.so.1.0.0 libssl.so
-    logcmd ln -s /lib/amd64/libssl.so.1.0.0 libssl.so.1.0.0
-    logcmd ln -s /lib/amd64/libcrypto.so.1.0.0 libcrypto.so
-    logcmd ln -s /lib/amd64/libcrypto.so.1.0.0 libcrypto.so.1.0.0
+    logcmd ln -s ../../../lib/amd64/libssl.so.1.0.0 libssl.so
+    logcmd ln -s ../../../lib/amd64/libssl.so.1.0.0 libssl.so.1.0.0
+    logcmd ln -s ../../../lib/amd64/libcrypto.so.1.0.0 libcrypto.so
+    logcmd ln -s ../../../lib/amd64/libcrypto.so.1.0.0 libcrypto.so.1.0.0
     popd > /dev/null
 }
 

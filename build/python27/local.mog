@@ -1,0 +1,19 @@
+<transform file path=license$ -> drop>
+license license license=PSF
+
+# Prevents pkgdepend from freaking out.
+
+<transform file path=usr/bin/amd64/smtpd.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/bin/i386/smtpd.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/lib2to3/tests/pytree_idempotency.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/cProfile.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/cgi.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/pdb.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/platform.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/profile.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/smtpd.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/test/privrbactest.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/test/dlpitest.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/test/ucredtest.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/trace.py -> set pkg.depend.bypass-generate .*>
+<transform file path=usr/lib/python2.7/ensurepip/__init__.py -> set pkg.depend.bypass-generate .*>

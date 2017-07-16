@@ -21,21 +21,21 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2011-2015 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=pcre
-VER=8.35
+VER=8.40
 VERHUMAN=$VER
 PKG=library/pcre
 SUMMARY="Perl-Compatible Regular Expressions"
 DESC="PCRE - Perl-Compatible Regular Expressions"
 
-DEPENDS_IPS="library/readline compress/bzip2 library/zlib system/library/g++-4-runtime
-	system/library/gcc-4-runtime system/library system/library/math"
+DEPENDS_IPS="library/readline compress/bzip2 library/zlib system/library/g++-5-runtime
+	system/library/gcc-5-runtime system/library system/library/math"
 
 LIBTOOL_NOSTDLIB=libtool
 LIBTOOL_NOSTDLIB_EXTRAS=-lc

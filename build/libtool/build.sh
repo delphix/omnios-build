@@ -28,12 +28,12 @@
 . ../../lib/functions.sh
 
 PROG=libtool
-VER=2.4.2
+VER=2.4.6
 PKG=developer/build/libtool  ##IGNORE##
 SUMMARY="libtool - GNU libtool utility"
 DESC="GNU libtool - library support utility ($VER)"
 
-DEPENDS_IPS="system/library system/library/gcc-4-runtime"
+DEPENDS_IPS="system/library system/library/gcc-5-runtime"
 BUILD_DEPENDS_IPS="autoconf automake"
 
 # The "binaries" here are just shell scripts so arch doesn't matter

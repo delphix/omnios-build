@@ -20,15 +20,15 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2014 OmniTI Computer Consulting, Inc.  All rights reserved.
-# Copyright (c) 2014 by Delphix. All rights reserved.
+# Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright (c) 2015 by Delphix. All rights reserved.
 #
 #############################################################################
 # Configuration for the build system
 #############################################################################
 
 # Default branch
-RELVER=151014
+RELVER=151022
 PVER=0.$RELVER
 
 # Which server to fetch files from.
@@ -43,7 +43,10 @@ PREFIX=/usr
 #    to avoid collision on shared build systems,
 #    TMPDIR includes a username
 # DTMPDIR is used for constructing the DESTDIR path
-TMPDIR=/tmp/build_$USER
+# Let the environment override TMPDIR.
+if [[ -z $TMPDIR ]]; then
+	TMPDIR=/tmp/build_$USER
+fi
 DTMPDIR=$TMPDIR
 
 # Log file for all output
@@ -71,11 +74,11 @@ FFIVERS=`pkg list libffi | grep libffi | awk '{print $2}' | \
 #############################################################################
 
 # Perl versions we currently build against
-PERLVERLIST="5.16.1"
+PERLVER=5.24.1
 
 # Full paths to bins
-PERL32=/usr/perl5/5.16.1/bin/$ISAPART/perl
-PERL64=/usr/perl5/5.16.1/bin/$ISAPART64/perl
+PERL32=/usr/perl5/$PERLVER/bin/$ISAPART/perl
+PERL64=/usr/perl5/$PERLVER/bin/$ISAPART64/perl
 
 # Default Makefile.PL options
 PERL_MAKEFILE_OPTS="INSTALLSITEBIN=$PREFIX/bin/_ARCHBIN_ \
@@ -93,10 +96,12 @@ PERL_MAKE_TEST=1
 
 
 #############################################################################
-# Python
+# Python -- NOTE, these can be changed at runtime via set_python_version().
 #############################################################################
+: ${PYTHONVER:=2.7}
+: ${PYTHONPKGVER:=`echo $PYTHONVER | sed 's/\.//g'`}
 PYTHONPATH=/usr
-PYTHON=$PYTHONPATH/bin/python2.6
+PYTHON=$PYTHONPATH/bin/python$PYTHONVER
 PYTHONLIB=$PYTHONPATH/lib
 
 

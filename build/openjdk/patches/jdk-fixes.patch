@@ -29,20 +29,13 @@ diff --git a/make/sun/awt/Makefile b/make/sun/awt/Makefile
 diff --git a/make/sun/awt/mawt.gmk b/make/sun/awt/mawt.gmk
 --- jdk/make/sun/awt/mawt.gmk
 +++ jdk/make/sun/awt/mawt.gmk
-@@ -240,13 +240,14 @@
-                         $(wildcard /usr/include/X11/extensions))
- endif
- 
--ifeq ($(PLATFORM), macosx))
-+ifeq ($(PLATFORM), macosx)
-   CPPFLAGS += -I$(OPENWIN_HOME)/include/X11/extensions \
-               -I$(OPENWIN_HOME)/include 
+@@ -246,7 +246,8 @@
  endif
  
  ifeq ($(PLATFORM), solaris)
 -  CPPFLAGS += -I$(OPENWIN_HOME)/include/X11/extensions
 +  CPPFLAGS += -I$(OPENWIN_HOME)/include/X11/extensions \
-+              -I$(ALT_OPENWIN_HOME)/include 
++               -I$(ALT_OPENWIN_HOME)/include
  endif
  
  ifeq ($(PLATFORM), macosx)
@@ -192,15 +185,6 @@ diff --git a/src/share/native/sun/java2d/cmm/lcms/cmsxform.c b/src/share/native/
  static
  void CachedXFORM(_cmsTRANSFORM* p,
                   const void* in,
-@@ -521,7 +521,7 @@
-             return NULL;
-         }
- 
--        // Float transforms don't use caché, always are non-NULL
-+        // Float transforms don't use cache, always are non-NULL
-         p ->xform = FloatXFORM;
-     }
-     else {
 @@ -558,16 +558,16 @@
              if (*dwFlags & cmsFLAGS_NOCACHE) {
  
