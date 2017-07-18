@@ -1,5 +1,5 @@
 diff --git a/auth.h b/auth.h
-index a0e41a4..67a30d4 100644
+index b4efc25..abb7bf8 100644
 --- a/auth.h
 +++ b/auth.h
 @@ -58,7 +58,8 @@ struct Authctxt {
@@ -13,10 +13,10 @@ index a0e41a4..67a30d4 100644
  	struct passwd	*pw;		/* set if 'valid' */
  	char		*style;
 diff --git a/auth2-pubkey.c b/auth2-pubkey.c
-index 5aa319c..376508d 100644
+index 01daef4..21ac4bb 100644
 --- a/auth2-pubkey.c
 +++ b/auth2-pubkey.c
-@@ -148,7 +148,7 @@ userauth_pubkey(Authctxt *authctxt)
+@@ -167,7 +167,7 @@ userauth_pubkey(Authctxt *authctxt)
  		}
  		/* reconstruct packet */
  		buffer_put_char(&b, SSH2_MSG_USERAUTH_REQUEST);
@@ -26,10 +26,10 @@ index 5aa319c..376508d 100644
  		    authctxt->style ? authctxt->style : "");
  		buffer_put_cstring(&b, userstyle);
 diff --git a/auth2.c b/auth2.c
-index 32ba663..7ef2383 100644
+index e68aa6d..48c15a4 100644
 --- a/auth2.c
 +++ b/auth2.c
-@@ -229,14 +229,17 @@ input_userauth_request(int type, u_int32_t seq, void *ctxt)
+@@ -231,14 +231,17 @@ input_userauth_request(int type, u_int32_t seq, void *ctxt)
  	if ((style = strchr(user, ':')) != NULL)
  		*style++ = 0;
  
@@ -48,7 +48,7 @@ index 32ba663..7ef2383 100644
  			logit("input_userauth_request: invalid user %s", user);
  			authctxt->pw = fakepw();
  #ifdef SSH_AUDIT_EVENTS
-@@ -267,11 +270,11 @@ input_userauth_request(int type, u_int32_t seq, void *ctxt)
+@@ -269,11 +272,11 @@ input_userauth_request(int type, u_int32_t seq, void *ctxt)
  		userauth_banner();
  		if (auth2_setup_methods_lists(authctxt) != 0)
  			packet_disconnect("no authentication methods enabled");
@@ -63,10 +63,10 @@ index 32ba663..7ef2383 100644
  	/* reset state */
  	auth2_challenge_stop(authctxt);
 diff --git a/monitor.c b/monitor.c
-index b3efbb0..c30a474 100644
+index d2ad542..d7ccc2c 100644
 --- a/monitor.c
 +++ b/monitor.c
-@@ -44,6 +44,7 @@
+@@ -45,6 +45,7 @@
  #endif
  #include <stdlib.h>
  #include <string.h>
@@ -74,7 +74,7 @@ index b3efbb0..c30a474 100644
  #include <stdarg.h>
  #include <stdio.h>
  #include <unistd.h>
-@@ -202,6 +203,10 @@ struct mon_table {
+@@ -200,6 +201,10 @@ struct mon_table {
  
  #define MON_PERMIT	0x1000	/* Request is permitted */
  
@@ -85,7 +85,7 @@ index b3efbb0..c30a474 100644
  struct mon_table mon_dispatch_proto20[] = {
  #ifdef WITH_OPENSSL
      {MONITOR_REQ_MODULI, MON_ONCE, mm_answer_moduli},
-@@ -820,12 +825,123 @@ mm_answer_sign(int sock, Buffer *m)
+@@ -757,12 +762,123 @@ mm_answer_sign(int sock, Buffer *m)
  	return (0);
  }
  
@@ -210,7 +210,7 @@ index b3efbb0..c30a474 100644
  	struct passwd *pwent;
  	int allowed = 0;
  	u_int i;
-@@ -836,6 +952,13 @@ mm_answer_pwnamallow(int sock, Buffer *m)
+@@ -773,6 +889,13 @@ mm_answer_pwnamallow(int sock, Buffer *m)
  		fatal("%s: multiple attempts for getpwnam", __func__);
  
  	username = buffer_get_string(m, NULL);
@@ -224,12 +224,12 @@ index b3efbb0..c30a474 100644
  
  	pwent = getpwnamallow(username);
  
-@@ -1381,7 +1504,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
+@@ -1329,7 +1452,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
  	if (buffer_get_char(&b) != SSH2_MSG_USERAUTH_REQUEST)
  		fail++;
- 	p = buffer_get_cstring(&b, NULL);
+ 	cp = buffer_get_cstring(&b, NULL);
 -	xasprintf(&userstyle, "%s%s%s", authctxt->user,
 +	xasprintf(&userstyle, "%s%s%s", authctxt->orig_user,
  	    authctxt->style ? ":" : "",
  	    authctxt->style ? authctxt->style : "");
- 	if (strcmp(userstyle, p) != 0) {
+ 	if (strcmp(userstyle, cp) != 0) {

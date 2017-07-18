@@ -1,6 +1,3 @@
-sshd_config.patch
-username-rewrite.patch
-no_xopen_source.patch
 0001-Skip-config-check.patch
 0002-PAM-Support.patch
 0003-lastlogin.patch
@@ -32,3 +29,7 @@ no_xopen_source.patch
 0031-Restore-tcpwrappers-libwrap-support.patch
 0032-Let-us-put-a-fallback-copy-of-DH-moduli-in-a-system-.patch
 1001-dtrace32.patch
+ssh_config.patch
+sshd_config.patch
+username-rewrite.patch
+no_xopen_source.patch

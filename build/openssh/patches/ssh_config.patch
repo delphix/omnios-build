@@ -1,12 +1,12 @@
 diff --git a/ssh_config b/ssh_config
-index 03a228f..cfe8990 100644
+index 4e879cd..9b0a4e4 100644
 --- a/ssh_config
 +++ b/ssh_config
-@@ -35,12 +35,16 @@
- #   IdentityFile ~/.ssh/id_rsa
- #   IdentityFile ~/.ssh/id_dsa
+@@ -39,12 +39,16 @@
+ #   IdentityFile ~/.ssh/id_ecdsa
+ #   IdentityFile ~/.ssh/id_ed25519
  #   Port 22
--#   Protocol 2,1
+-#   Protocol 2
 +# GEN005501
 +Protocol 2
  #   Cipher 3des
