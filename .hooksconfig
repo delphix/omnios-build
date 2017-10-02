@@ -79,7 +79,7 @@
         gate-release = 5.1.9.0
 [branch "5.2/release"]
         gate-release = 5.2.0.1
-	    gate-slack-notify = pushes
+        gate-slack-notify = pushes
         gate-approvers = gatekeepers-52
 [branch "5.2/stage"]
         gate-slack-notify = pushes
