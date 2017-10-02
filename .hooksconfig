@@ -81,10 +81,12 @@
         gate-release = 5.2.0.1
         gate-slack-notify = pushes
         gate-approvers = gatekeepers-52
+        gate-allowed-issuetypes = 10405
 [branch "5.2/stage"]
         gate-slack-notify = pushes
         gate-approvers = gatekeepers-52
         gate-release = 5.2.1.0
+        gate-allowed-issuetypes = 10405
 [branch "projects/hyperv"]
         gate-notify = prakash.surya@delphix.com
         gate-user-check = on
