@@ -1,5 +1,5 @@
-# Build System for OmniOS
+# Copyright (c) 2018 by Delphix. All rights reserved.
+# The scripts in this repo are used to generate IPS packages for DelphixOS
+# See pkg-build-gate workflow for instructions:
+https://docs.delphix.com/pages/viewpage.action?spaceKey=EN&title=pkg-build-gate+workflow
 
-These scripts and tools are used to build new versions of OmniOS.
-
-Please see [the build instructions](https://omnios.omniti.com/wiki.php/BuildInstructions) for details on how to use these tools.
