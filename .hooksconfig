@@ -11,7 +11,7 @@
 [branch "master"]
         gate-release-check = skip
         gate-approvers = gatekeepers-os
-        gate-allowed-issuetypes = 1,2,10302
+        gate-allowed-issuetypes = 1,2,3,10302,10001,
         gate-slack-notify = pushes
         gate-release = Krypton
         codename = Krypton
