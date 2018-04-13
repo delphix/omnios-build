@@ -1,0 +1,28 @@
+#
+# Copyright (c) 2018 by Delphix. All rights reserved.
+#
+
+license COPYING license=ruby.license
+license BSDL license="2-clause BSDL"
+license COPYING.ja license=ruby.license.japanese
+
+set name=info.classification \
+    value=org.opensolaris.category.2008:Development/Ruby
+
+# mediated symlinks
+<transform link path=usr/bin/.* -> default mediator ruby>
+<transform link path=usr/share/man/.* -> default mediator ruby>
+<transform link target=/opt/ruby/2.5.1/.* -> default mediator-version 2.5.1>
+
+link path=usr/bin/ruby  target=/opt/ruby/2.5.1/bin/ruby
+link path=usr/bin/rake  target=/opt/ruby/2.5.1/bin/rake
+link path=usr/bin/gem   target=/opt/ruby/2.5.1/bin/gem
+link path=usr/bin/ri    target=/opt/ruby/2.5.1/bin/ri
+link path=usr/bin/irb   target=/opt/ruby/2.5.1/bin/irb
+link path=usr/bin/erb   target=/opt/ruby/2.5.1/bin/erb
+link path=usr/bin/rdoc  target=/opt/ruby/2.5.1/bin/rdoc
+
+link path=usr/share/man/man1/ri.1       target=/opt/ruby/2.5.1/share/man/man1/ri.1
+link path=usr/share/man/man1/ruby.1     target=/opt/ruby/2.5.1/share/man/man1/ruby.1
+link path=usr/share/man/man1/irb.1      target=/opt/ruby/2.5.1/share/man/man1/irb.1
+link path=usr/share/man/man1/erb.1      target=/opt/ruby/2.5.1/share/man/man1/erb.1
