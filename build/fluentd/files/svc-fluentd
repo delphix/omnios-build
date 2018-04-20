@@ -1,0 +1,93 @@
+#!/sbin/sh
+#
+# Copyright (c) 2018 by Delphix. All rights reserved.
+#
+
+# init script for fluentd
+
+. /lib/svc/share/smf_include.sh
+
+export	PATH=/usr/bin:$PATH
+
+SERVICE=fluentd
+CONF_DIR=/etc/fluent
+LOG_DIR=/var/log
+
+CONF_FILE=$CONF_DIR/fluent.conf
+LOG_FILE=$LOG_DIR/$SERVICE.log
+
+PID_DIR=/var/run
+PID_FILE=$PID_DIR/$SERVICE.pid
+
+GEM_HOME=$(gem env gemdir -q)
+
+# Log rotate generations to keep
+LOG_GENS=5
+# Log rotate file size in bytes
+LOG_FILESZ=104857600
+
+# Additional fluentd command line options
+FLUENTD_OPTIONS="--gem-path=$GEM_HOME --log-rotate-age $LOG_GENS --log-rotate-size $LOG_FILESZ"
+
+case "$1" in
+'start')
+	[ ! -d $PID_DIR ] && mkdir -p $PID_DIR
+	[ ! -d $LOG_DIR ] && mkdir -p $LOG_DIR
+	if [ -f $CONF_FILE ]; then
+	    cmd="$SERVICE -v -c $CONF_FILE -d $PID_FILE -l $LOG_FILE $FLUENTD_OPTIONS"
+	    echo $cmd
+	    $cmd
+	    if [ $? -ne 0 ]; then
+		echo "Failed to start $SERVICE"
+		exit $SMF_EXIT_ERR_FATAL
+	    else
+		echo "Started $SERVICE"
+	    fi
+	else
+	    echo " '$CONF_FILE' does not exist! "
+	    exit $SMF_EXIT_ERR_CONFIG
+	fi
+	;;
+'stop')
+	ctid=$(svcprop -p restarter/contract $SMF_FMRI)
+	if [ -n "$ctid" ]; then
+	    smf_kill_contract $ctid TERM 1 30
+	    ret=$?
+	    if [ $ret -eq 0 ]; then
+		echo "Stopped $SERVICE gracefully"
+		rm -f $PID_FILE
+	    elif [ $ret -eq 2 ]; then
+		echo "Stopping $SERVICE ungracefully"
+		smf_kill_contract $ctid KILL 1
+		rm -f $PID_FILE
+	    else
+		echo "Failed to stop $SERVICE, error $ret"
+		exit $SMF_EXIT_ERR_FATAL
+	    fi
+	else
+	    echo "$SERVICE not yet started! "
+	    exit $SMF_EXIT_ERR_CONFIG
+	fi
+	;;
+'refresh')
+	# SIGHUP needs to be sent only to supervisor (parent) process
+	kill -HUP `cat $PID_FILE`
+	;;
+'reopen')
+	# SIGUSR1 needs to be sent only to supervisor (parent) process
+	kill -USR1 `cat $PID_FILE`
+	;;
+'dryrun')
+	[ ! -d $CONF_DIR ] && mkdir -p $CONF_DIR
+	$SERVICE -c $CONF_FILE --dry-run -q
+	if [ $? -ne 0 ]; then
+	    exit $SMF_EXIT_ERR_FATAL
+	fi
+	;;
+*)
+	echo " Usage: $0 {start | stop | refresh | reopen | dryrun} "
+	exit $SMF_EXIT_ERR_CONFIG
+	;;
+esac
+
+exit $SMF_OK

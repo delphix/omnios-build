@@ -1,0 +1,16 @@
+#
+# Copyright (c) 2018 by Delphix. All rights reserved.
+#
+
+license LICENSE license=Apache2
+
+
+link path=usr/bin/fluentd			target=/opt/ruby/2.5.1/bin/fluentd
+link path=usr/bin/fluent-cat			target=/opt/ruby/2.5.1/bin/fluent-cat
+link path=usr/bin/fluent-debug			target=/opt/ruby/2.5.1/bin/fluent-debug
+link path=usr/bin/fluent-gem			target=/opt/ruby/2.5.1/bin/fluent-gem
+link path=usr/bin/fluent-binlog-reader		target=/opt/ruby/2.5.1/bin/fluent-binlog-reader
+link path=usr/bin/fluent-ca-generate		target=/opt/ruby/2.5.1/bin/fluent-ca-generate
+link path=usr/bin/fluent-plugin-config-format	target=/opt/ruby/2.5.1/bin/fluent-plugin-config-format
+link path=usr/bin/fluent-plugin-generate	target=/opt/ruby/2.5.1/bin/fluent-plugin-generate
+

@@ -1,0 +1,88 @@
+#
+# Copyright (c) 2018 by Delphix. All rights reserved.
+#
+
+
+## Template fluentd configuration file
+#
+# Fluentd configuration file consists of the following directives:
+#
+# <source>  directives:  determine the input sources.
+# <match>   directives:  determine the output destinations.
+# <include> directives:  include other files.
+# <system>  directives:  set system wide configuration.
+#
+# This current template sets up a Basic forwarder fluentd
+# And is only meant for quick test to sanity check if installed fluentd works.
+# Set up:
+# - Input (<source> @type forward):
+#   takes any input and just forwards it
+# - Output (<match> @type stdout with tag "test"):
+#   pushes it to stdout
+#   if fluentd is daemonized (-d), output goes to log file specified with "-l" option.
+#
+# Quick sanity check
+#   Example:
+#   $ echo '{"json":"testing fluentd..."}' | fluent-cat test
+#
+# <source> @type monitor_agent: http port 24220 for monitoring
+# <source> @type debug_agent: port 24230 for debugger
+#
+
+# In v1 configuration, type and id are @ prefix parameters.
+# @type and @id are recommended. type and id are still available for backward compatibility
+
+## Global config
+#
+<system>
+  # equal to -v command line option
+  log_level debug
+  <log>
+    format json
+    time_format %Y-%m-%dT%H:%M:%S.%NZ
+  </log>
+</system>
+
+## built-in TCP input
+# $ echo <json> | fluent-cat <tag>
+<source>
+  @type forward
+  @id forward_input
+</source>
+
+## built-in UNIX socket input
+#<source>
+#  @type unix
+#</source>
+
+## Listen HTTP for monitoring
+# http://localhost:24220/api/plugins
+# http://localhost:24220/api/plugins?type=TYPE
+# http://localhost:24220/api/plugins?tag=MYTAG
+<source>
+  @type monitor_agent
+  @id monitor_agent_input
+
+  port 24220
+</source>
+
+## Listen DRb for debug
+<source>
+  @type debug_agent
+  @id debug_agent_input
+
+  bind 127.0.0.1
+  port 24230
+</source>
+
+## match tag=test and dump to stdout
+<match test>
+  @type stdout
+  @id stdout_output
+</match>
+
+## match fluent's internal events
+#<match fluent.**>
+#  @type null
+#</match>
+#
