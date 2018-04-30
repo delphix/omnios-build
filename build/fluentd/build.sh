@@ -47,15 +47,17 @@ GEM_DEPENDS="fluent-plugin-splunk-http-eventcollector-0.3.0"
 
 install_smf() {
     FLUENTD_CONF_DIR=$DESTDIR/etc/fluent
+    FLUENTD_MANIFEST_DIR=$DESTDIR/lib/svc/manifest/site
+    FLUENTD_METHOD_DIR=$DESTDIR/lib/svc/method
 
     logmsg "Installing SMF components"
-    logcmd mkdir -p $DESTDIR/lib/svc/manifest/site
-    logcmd mkdir -p $DESTDIR/lib/delphix
+    logcmd mkdir -p $FLUENTD_MANIFEST_DIR
+    logcmd mkdir -p $FLUENTD_METHOD_DIR
     logcmd mkdir -p $FLUENTD_CONF_DIR
-    logcmd cp $SRCDIR/files/fluentd.xml $DESTDIR/lib/svc/manifest/site/delphix_fluentd.xml || \
-		logerr "--- Failed to copy manifest file"
-    logcmd cp $SRCDIR/files/svc-fluentd $DESTDIR/lib/delphix/svc-fluentd || \
-		logerr "--- Failed to copy svc method file"
+    logcmd cp $SRCDIR/files/fluentd.xml $FLUENTD_MANIFEST_DIR/delphix_fluentd.xml || \
+		logerr "--- Failed to copy SMF manifest file"
+    logcmd cp $SRCDIR/files/svc-fluentd $FLUENTD_METHOD_DIR/svc-fluentd || \
+		logerr "--- Failed to copy SMF method file"
     logcmd cp $SRCDIR/files/fluent.conf.template $FLUENTD_CONF_DIR/fluent.conf || \
 		logerr "--- Failed to copy fluentd template conf file"
 }
