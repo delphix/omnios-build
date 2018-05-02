@@ -27,8 +27,8 @@
 . ../../lib/functions.sh
 . ../../lib/gem-functions.sh
 
-PROG=fluentd      # App name
-VER=1.1.3        # App version
+PROG=fluentd    # App name
+VER=1.2.0       # App version
 VERHUMAN=$VER   # Human-readable version
 PKG=application/fluentd            # Package name (e.g. library/foo)
 

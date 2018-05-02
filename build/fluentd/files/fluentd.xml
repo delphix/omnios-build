@@ -33,9 +33,9 @@
 			Fluentd uses ruby gem "sigdump" for dumping troubleshooting
 			information to a local file (thread dump, object allocation etc)
 			By default it uses /tmp/sigdump-xxx.log file
-			Change it to use /var/log path.
+			Change it to use /var/log/fluent/ path.
 			-->
-			<envvar name="SIGDUMP_PATH" value="/var/log/fluentd-sigdump.log" />
+			<envvar name="SIGDUMP_PATH" value="/var/log/fluent/fluentd-sigdump.log" />
 		</method_environment>
 	</method_context>
 

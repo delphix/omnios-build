@@ -11,7 +11,7 @@ export	PATH=/usr/bin:$PATH
 
 SERVICE=fluentd
 CONF_DIR=/etc/fluent
-LOG_DIR=/var/log
+LOG_DIR=/var/log/fluent
 
 CONF_FILE=$CONF_DIR/fluent.conf
 LOG_FILE=$LOG_DIR/$SERVICE.log
@@ -71,11 +71,11 @@ case "$1" in
 	;;
 'refresh')
 	# SIGHUP needs to be sent only to supervisor (parent) process
-	kill -HUP `cat $PID_FILE`
+	[ -f $PID_FILE ] && kill -HUP `cat $PID_FILE`
 	;;
 'reopen')
 	# SIGUSR1 needs to be sent only to supervisor (parent) process
-	kill -USR1 `cat $PID_FILE`
+	[ -f $PID_FILE ] && kill -USR1 `cat $PID_FILE`
 	;;
 'dryrun')
 	[ ! -d $CONF_DIR ] && mkdir -p $CONF_DIR
