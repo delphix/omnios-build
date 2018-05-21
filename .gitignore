@@ -1,4 +1,8 @@
+#
+# Copyright (c) 2018 by Delphix. All rights reserved.
+#
 build.log
 build.log.1
 tmp.repo/
 *.p5m.final
+**/.DS_Store

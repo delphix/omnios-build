@@ -23,7 +23,7 @@
 #
 # Copyright 2015 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
-# Copyright (c) 2014, 2016 by Delphix. All rights reserved.
+# Copyright (c) 2014, 2018 by Delphix. All rights reserved.
 #
 
 umask 022
@@ -206,8 +206,16 @@ url_encode() {
 # Set the LANG to C as the assembler will freak out on unicode in headers
 LANG=C
 export LANG
+
+# support alternate gcc path (on westy)
+if [[ -d /opt/gcc-5.1.0/bin ]]; then
+	gccdir=/opt/gcc-5.1.0/bin
+else
+	gccdir=/opt/csw/bin
+fi
+
 # Set the path - This can be overriden/extended in the build script
-PATH="/opt/gcc-5.1.0/bin:/usr/ccs/bin:/usr/bin:/usr/sbin:/usr/gnu/bin:/usr/sfw/bin"
+PATH="$gccdir:/usr/ccs/bin:/usr/bin:/usr/sbin:/usr/gnu/bin:/usr/sfw/bin"
 export PATH
 # The dir where this file is located - used for sourcing further files
 MYDIR=$PWD/`dirname $BASH_SOURCE[0]`
@@ -232,7 +240,7 @@ shift $((OPTIND - 1))
 
 BasicRequirements(){
     local needed=""
-    [[ -x /opt/gcc-5.1.0/bin/gcc ]] || needed+=" developer/gcc51"
+    [[ -x "${gccdir}/gcc" ]] || needed+=" developer/gcc51"
     [[ -x /usr/bin/ar ]] || needed+=" developer/object-file"
     [[ -x /usr/bin/ld ]] || needed+=" developer/linker"
     [[ -f /usr/lib/crt1.o ]] || needed+=" developer/library/lint"

@@ -1,0 +1,11 @@
+# Copyright (c) 2018 by Delphix. All rights reserved.
+
+In order to get this to run on westy (which is out of date)
+I had to install another gcc via csw:
+https://www.opencsw.org/manual/for-administrators/getting-started.html
+https://www.opencsw.org/packages/gcc5core/
+
+also had to modify functions.sh to assume that csw will cover it if the
+expected version is not there.
+
+And finally had to remove gcc ips dependencies from postgres104/build.sh
