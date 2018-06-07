@@ -57,6 +57,10 @@ build() {
     export RUBYLIB
     GEM_BIN_DIR=${DESTDIR}${PREFIX}/bin
     export GEM_BIN_DIR
+    logmsg "--- gem install $PROG-$VER"
+    logcmd $GEM_BIN --config-file $GEMRC install \
+         -r --no-rdoc --no-ri -w -n ${GEM_BIN_DIR} -i ${GEM_HOME} -v $VER $PROG || \
+        logerr "Failed to gem install $PROG-$VER"
     for i in $GEM_DEPENDS; do
       GEM=${i%-[0-9.]*}
       GVER=${i##[^0-9.]*-}
@@ -65,10 +69,6 @@ build() {
         -r --no-rdoc --no-ri -w -n ${GEM_BIN_DIR} -i ${GEM_HOME} -v $GVER $GEM || \
         logerr "Failed to install $GEM-$GVER"
     done
-    logmsg "--- gem install $PROG-$VER"
-    logcmd $GEM_BIN --config-file $GEMRC install \
-         -r --no-rdoc --no-ri -w -n ${GEM_BIN_DIR} -i ${GEM_HOME} -v $VER $PROG || \
-        logerr "Failed to gem install $PROG-$VER"
     logmsg "--- Fixing include paths on binaries"
     for i in $GEM_BIN_DIR/*; do
       sed -e "/require 'rubygems'/ a\\
@@ -84,4 +84,46 @@ Gem.refresh\\
 download_source() {
     # Just make the temp build dir
     logcmd mkdir -p $TMPDIR/$PROG-$VER
+}
+
+#
+# Patches a given Gem-version (argument)
+# - assumes that the Gem is already installed via build() above
+# - patch filename in series should have the given Gem-version prefix
+#
+patch_gem() {
+    GEM_NAME=$1
+    if [[ -z $GEM_NAME ]]; then
+        logmsg "--- Gem name to be patched is not specified"
+	return 1
+    fi
+
+    if ! check_for_patches "in order to apply them"; then
+        logmsg "--- Not applying any gem patches"
+    else
+        logmsg "Checking gem patches for ${GEM_NAME}"
+        GEMS_DIR=${DESTDIR}${PREFIX}/lib/ruby/gems/${RUBY_VER}/gems
+        if [[ ! -d $GEMS_DIR/$GEM_NAME ]]; then
+          logmsg "--- Gem ${GEM_NAME} directory not found"
+          return 1
+        fi
+
+        # Read the series file for patch filenames
+        exec 3<"$SRCDIR/$PATCHDIR/series" # Open the series file with handle 3
+        pushd $GEMS_DIR/$GEM_NAME > /dev/null
+        logmsg "Parsing series file for ${GEM_NAME}"
+        while read LINE <&3 ; do
+	    GEM=${LINE%-[0-9.]*}
+	    GVER=${LINE//[^0-9.]/}
+	    GVER=${GVER%.}
+	    if [[ "${GEM_NAME}" == "${GEM}-${GVER}" ]]; then
+		logmsg "Applying gem patches for ${GEM_NAME}"
+                # Split Line into filename+args
+		patch_file $LINE
+	    fi
+        done
+        popd > /dev/null
+        exec 3<&- # Close the file
+    fi
+    return 0
 }

@@ -1,0 +1,18 @@
+diff --git a/lib/fluent/plugin/out_splunk-http-eventcollector.rb b/lib/fluent/plugin/out_splunk-http-eventcollector.rb
+index 19080f6..191d102 100644
+--- a/lib/fluent/plugin/out_splunk-http-eventcollector.rb
++++ b/lib/fluent/plugin/out_splunk-http-eventcollector.rb
+@@ -123,7 +123,12 @@ class SplunkHTTPEventcollectorOutput < BufferedOutput
+   def start
+     super
+     log.trace "splunk-http-eventcollector(start) called"
+-    @http = Net::HTTP::Persistent.new 'fluent-plugin-splunk-http-eventcollector'
++    ## Check for net-http-persistent 3.0.0
++    if Net::HTTP::Persistent.instance_method(:initialize).parameters.first == [:key, :name]
++      @http = Net::HTTP::Persistent.new(name: 'fluent-plugin-splunk-http-eventcollector')
++    else
++      @http = Net::HTTP::Persistent.new 'fluent-plugin-splunk-http-eventcollector'
++    end
+     @http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless @verify
+     @http.override_headers['Content-Type'] = 'application/json'
+     @http.override_headers['User-Agent'] = 'fluent-plugin-splunk-http-eventcollector/0.0.1'
