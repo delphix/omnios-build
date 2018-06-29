@@ -1,10 +1,8 @@
-From accb8ef16ca7b9273135ffb4cdc040383f87bfb9 Mon Sep 17 00:00:00 2001
-From: Alex Wilson <alex.wilson@joyent.com>
-Date: Wed, 16 Sep 2015 10:54:13 -0700
-Subject: [PATCH 31/34] Restore tcpwrappers/libwrap support
+From 435f773d2759773640ccd0d02126cd700ed46f63 Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:46:45 -0400
+Subject: [PATCH] 0031-Restore-tcpwrappers-libwrap-support.patch
 
-This reverts commit f9696566fb41320820f3b257ab564fa321bb3751
-and commit f2719b7c2b8a3b14d778d8a6d8dc729b5174b054.
 ---
  configure.ac | 57 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  sshd.1m      |  7 +++++++
@@ -12,10 +10,10 @@ and commit f2719b7c2b8a3b14d778d8a6d8dc729b5174b054.
  3 files changed, 93 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index 5e64db3b..bf9c5449 100644
+index 5470ea1..15a2fcb 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1494,6 +1494,62 @@ AC_ARG_WITH([skey],
+@@ -1569,6 +1569,62 @@ AC_ARG_WITH([skey],
  	]
  )
  
@@ -78,19 +76,19 @@ index 5e64db3b..bf9c5449 100644
  # Check whether user wants to use ldns
  LDNS_MSG="no"
  AC_ARG_WITH(ldns,
-@@ -5136,6 +5192,7 @@ echo "                 KerberosV support: $KRB5_MSG"
+@@ -5271,6 +5327,7 @@ echo "                   OSF SIA support: $SIA_MSG"
+ echo "                 KerberosV support: $KRB5_MSG"
  echo "                   SELinux support: $SELINUX_MSG"
- echo "                 Smartcard support: $SCARD_MSG"
  echo "                     S/KEY support: $SKEY_MSG"
 +echo "              TCP Wrappers support: $TCPW_MSG"
  echo "              MD5 password support: $MD5_MSG"
  echo "                   libedit support: $LIBEDIT_MSG"
- echo "  Solaris process contract support: $SPC_MSG"
+ echo "                   libldns support: $LDNS_MSG"
 diff --git a/sshd.1m b/sshd.1m
-index 387ea69e..55cf3f0d 100644
+index 0978f33..b63418a 100644
 --- a/sshd.1m
 +++ b/sshd.1m
-@@ -825,6 +825,12 @@ the user's home directory becomes accessible.
+@@ -845,6 +845,12 @@ the user's home directory becomes accessible.
  This file should be writable only by the user, and need not be
  readable by anyone else.
  .Pp
@@ -103,7 +101,7 @@ index 387ea69e..55cf3f0d 100644
  .It Pa /etc/hosts.equiv
  This file is for host-based authentication (see
  .Xr ssh 1 ) .
-@@ -956,6 +962,7 @@ Each SSHv2 userauth type has its own PAM service name:
+@@ -974,6 +980,7 @@ Each SSHv2 userauth type has its own PAM service name:
  .Xr ssh-keygen 1 ,
  .Xr ssh-keyscan 1 ,
  .Xr chroot 2 ,
@@ -112,7 +110,7 @@ index 387ea69e..55cf3f0d 100644
  .Xr moduli 4 ,
  .Xr sshd_config 4 ,
 diff --git a/sshd.c b/sshd.c
-index 67171704..75da16b7 100644
+index 1760baa..7186652 100644
 --- a/sshd.c
 +++ b/sshd.c
 @@ -127,6 +127,17 @@
@@ -133,7 +131,7 @@ index 67171704..75da16b7 100644
  /* Re-exec fds */
  #define REEXEC_DEVCRYPTO_RESERVED_FD	(STDERR_FILENO + 1)
  #define REEXEC_STARTUP_PIPE_FD		(STDERR_FILENO + 2)
-@@ -1997,6 +2008,24 @@ main(int ac, char **av)
+@@ -2061,6 +2072,24 @@ main(int ac, char **av)
  #ifdef SSH_AUDIT_EVENTS
  	audit_connection_from(remote_ip, remote_port);
  #endif
@@ -156,8 +154,8 @@ index 67171704..75da16b7 100644
 +	}
 +#endif /* LIBWRAP */
  
- 	/* Log the connection. */
- 	laddr = get_local_ipaddr(sock_in);
+ 	rdomain = ssh_packet_rdomain_in(ssh);
+ 
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 

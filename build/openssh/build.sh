@@ -24,11 +24,13 @@
 # Copyright 2015 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
+# Copyright (c) 2018 by Delphix. All rights reserved.
+#
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=openssh
-VER=7.4p1
+VER=7.7p1
 VERHUMAN=$VER
 PKG=network/openssh
 SUMMARY="OpenSSH Client and utilities"

@@ -1,24 +1,17 @@
-From 0b9b897495b16fe4efeb8060a97c00bbbab28c0d Mon Sep 17 00:00:00 2001
-From: oracle <solaris@oracle.com>
-Date: Mon, 3 Aug 2015 14:34:19 -0700
-Subject: [PATCH 02/34] PAM Support
+From a1438fdf3244ad835bc013b7182a3d37cbcffeae Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:14:25 -0400
+Subject: [PATCH] 0002-PAM-Support.patch
 
-#
-# To comply to the Solaris PAM policy, the UsePAM option is changed to be
-# always on and not configurable on Solaris.  This is for Solaris only, so we
-# will not contribute the changes to the upstream community.
-#
-
-*** orig/servconf.c	Mon Dec  5 17:23:03 2011
 ---
  servconf.c | 14 ++++++++++++++
  1 file changed, 14 insertions(+)
 
 diff --git a/servconf.c b/servconf.c
-index 795ddbab..409d4800 100644
+index 0f0d090..3d73246 100644
 --- a/servconf.c
 +++ b/servconf.c
-@@ -194,7 +194,12 @@ fill_default_server_options(ServerOptions *options)
+@@ -240,7 +240,12 @@ fill_default_server_options(ServerOptions *options)
  
  	/* Portable-specific options */
  	if (options->use_pam == -1)
@@ -31,7 +24,7 @@ index 795ddbab..409d4800 100644
  
  	/* Standard Options */
  	if (options->num_host_key_files == 0) {
-@@ -998,8 +1003,17 @@ process_server_config_line(ServerOptions *options, char *line,
+@@ -1196,8 +1201,17 @@ process_server_config_line(ServerOptions *options, char *line,
  	switch (opcode) {
  	/* Portable-specific options */
  	case sUsePAM:
@@ -50,5 +43,5 @@ index 795ddbab..409d4800 100644
  	/* Standard Options */
  	case sBadOption:
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 

@@ -1,17 +1,25 @@
+From 547260304e786fdf654f461e9dd38a76d970f28c Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:46:45 -0400
+Subject: [PATCH] ssh_config.patch
+
+---
+ ssh_config | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
 diff --git a/ssh_config b/ssh_config
-index 4e879cd..9b0a4e4 100644
+index bcb9f15..157c700 100644
 --- a/ssh_config
 +++ b/ssh_config
-@@ -39,12 +39,16 @@
+@@ -36,11 +36,15 @@
  #   IdentityFile ~/.ssh/id_ecdsa
  #   IdentityFile ~/.ssh/id_ed25519
  #   Port 22
 -#   Protocol 2
+-#   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc
+-#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com
 +# GEN005501
 +Protocol 2
- #   Cipher 3des
--#   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc
--#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
 +# GEN005510, GEN005511
 +Ciphers aes128-ctr,aes192-ctr,aes256-ctr
 +# GEN005512
@@ -23,3 +31,6 @@ index 4e879cd..9b0a4e4 100644
  #   TunnelDevice any:any
  #   PermitLocalCommand no
  #   VisualHostKey no
+-- 
+2.14.3 (Apple Git-98)
+

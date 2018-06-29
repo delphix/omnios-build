@@ -1,24 +1,17 @@
-From f1b0f2c40b09b0a280b097b6ce39a5767e6f6edd Mon Sep 17 00:00:00 2001
-From: oracle <solaris@oracle.com>
-Date: Mon, 3 Aug 2015 14:31:53 -0700
-Subject: [PATCH 01/34] Skip config check
+From 350fbe9c313059eb09288e7c87a69cbfb8dffd32 Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:14:25 -0400
+Subject: [PATCH] 0001-Skip-config-check.patch
 
-#
-# This change is to remove some misleading error messages when running
-# "gmake install". OpenSSH mixes the building and running together. Some
-# system setup checking for running the program needs to be removed, because
-# they are not suitable in a build system.  This is for Solaris only, so we
-# will not contribute back this change to the upstream community.
-#
 ---
  Makefile.in | 11 ++++++++++-
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index e10f3742..4bbfb736 100644
+index 04e1c8e..9d1cb3d 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -302,7 +302,16 @@ install-nokeys: $(CONFIGFILES) $(MANPAGES) $(TARGETS) install-files install-sysc
+@@ -320,7 +320,16 @@ install-nokeys: $(CONFIGFILES) $(MANPAGES) $(TARGETS) install-files install-sysc
  install-nosysconf: $(CONFIGFILES) $(MANPAGES) $(TARGETS) install-files
  
  check-config:
@@ -35,7 +28,7 @@ index e10f3742..4bbfb736 100644
 +	@echo 'Oracle Solaris: skipping check-config'
  
  install-files:
- 	$(srcdir)/mkinstalldirs $(DESTDIR)$(bindir)
+ 	$(MKDIR_P) $(DESTDIR)$(bindir)
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 

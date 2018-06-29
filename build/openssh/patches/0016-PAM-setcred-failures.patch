@@ -1,29 +1,17 @@
-From 37431ef55b807e6d00fd45b54a57b7ba6df81b95 Mon Sep 17 00:00:00 2001
-From: oracle <solaris@oracle.com>
-Date: Mon, 3 Aug 2015 14:38:26 -0700
-Subject: [PATCH 16/34] PAM setcred failures
+From 40898b623dea071a98387f28fcc06e298a6bce6c Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:14:27 -0400
+Subject: [PATCH] 0016-PAM-setcred-failures.patch
 
-#
-# This patch contains bug fixes to the PAM credential and session operations.
-# In the original OpenSSH, the server only gives warnings and still allows
-# users to log in when pam_setcred() or pam_open_session() fail, if user auth
-# method is not keyboard-interactive or password.  This is not a correct
-# behavior. The server should just fatal out, when these functions fail.
-#
-# We have contributed back these bug fixes to the OpenSSH upstream community.
-# For more information, see https://bugzilla.mindrot.org/show_bug.cgi?id=2399
-# In the future, if these bug fixes are accepted by the upsteam in a later
-# release, we will remove this patch when we upgrade to that release.
-#
 ---
  auth-pam.c | 13 +++++++++++++
  1 file changed, 13 insertions(+)
 
 diff --git a/auth-pam.c b/auth-pam.c
-index 46bf722e..dcd0f208 100644
+index 9b20c04..5a388da 100644
 --- a/auth-pam.c
 +++ b/auth-pam.c
-@@ -1102,12 +1102,19 @@ do_pam_setcred(int init)
+@@ -1128,12 +1128,19 @@ do_pam_setcred(int init)
  		sshpam_cred_established = 1;
  		return;
  	}
@@ -43,7 +31,7 @@ index 46bf722e..dcd0f208 100644
  }
  
  static int
-@@ -1200,10 +1207,16 @@ do_pam_session(void)
+@@ -1229,10 +1236,16 @@ do_pam_session(struct ssh *ssh)
  	if (sshpam_err == PAM_SUCCESS)
  		sshpam_session_open = 1;
  	else {
@@ -53,7 +41,7 @@ index 46bf722e..dcd0f208 100644
 +		    pam_strerror(sshpam_handle, sshpam_err));
 +#else /* orig */
  		sshpam_session_open = 0;
- 		disable_forwarding();
+ 		auth_restrict_session(ssh);
  		error("PAM: pam_open_session(): %s",
  		    pam_strerror(sshpam_handle, sshpam_err));
 +#endif /* PAM_BUGFIX */
@@ -61,5 +49,5 @@ index 46bf722e..dcd0f208 100644
  
  }
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 

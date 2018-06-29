@@ -1,8 +1,8 @@
-From d49e2f6e769b21d7f04e590a82b88f89fdda066d Mon Sep 17 00:00:00 2001
-From: Alex Wilson <alex.wilson@joyent.com>
-Date: Fri, 7 Aug 2015 13:32:53 -0700
-Subject: [PATCH 24/34] Add --with-key-dir configure option to place SSH host
- keys
+From a9741fb186e5b91dbe3bece908384e5a1f2aee28 Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:14:27 -0400
+Subject: [PATCH] 
+ 0024-Add-with-key-dir-configure-option-to-place-SSH-host-.patch
 
 ---
  Makefile.in  | 12 +++++++-----
@@ -11,10 +11,10 @@ Subject: [PATCH 24/34] Add --with-key-dir configure option to place SSH host
  3 files changed, 36 insertions(+), 11 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index 1ab8bc90..3a2a840d 100644
+index 52bde87..feae4de 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -18,6 +18,7 @@ sysconfdir=@sysconfdir@
+@@ -16,6 +16,7 @@ sysconfdir=@sysconfdir@
  piddir=@piddir@
  srcdir=@srcdir@
  top_srcdir=@top_srcdir@
@@ -22,7 +22,7 @@ index 1ab8bc90..3a2a840d 100644
  
  DESTDIR=
  VPATH=@srcdir@
-@@ -130,11 +131,11 @@ PATHSUBS	= \
+@@ -138,11 +139,11 @@ PATHSUBS	= \
  	-e 's|/etc/ssh/sshd_config|$(sysconfdir)/sshd_config|g' \
  	-e 's|/usr/libexec|$(libexecdir)|g' \
  	-e 's|/etc/shosts.equiv|$(sysconfdir)/shosts.equiv|g' \
@@ -39,19 +39,19 @@ index 1ab8bc90..3a2a840d 100644
  	-e 's|/var/run/sshd.pid|$(piddir)/sshd.pid|g' \
  	-e 's|/etc/moduli|$(sysconfdir)/moduli|g' \
  	-e 's|/etc/ssh/moduli|$(sysconfdir)/moduli|g' \
-@@ -370,6 +371,7 @@ install-files:
+@@ -387,6 +388,7 @@ install-files:
  	$(srcdir)/mkinstalldirs $(SMFNETMANIDIR)
  	$(INSTALL) -m 555 smf/method.sh $(SMFMETHODDIR)/sshd
  	$(INSTALL) -m 444 smf/manifest.xml $(SMFNETMANIDIR)/ssh.xml
 +	mkdir -p $(DESTDIR)$(keydir)
  
  install-sysconf:
- 	if [ ! -d $(DESTDIR)$(sysconfdir) ]; then \
+ 	$(MKDIR_P) $(DESTDIR)$(sysconfdir)
 diff --git a/configure.ac b/configure.ac
-index 1635897c..c7a8e662 100644
+index 515b8eb..bad8657 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4780,6 +4780,20 @@ AC_DEFINE_UNQUOTED([_PATH_SSH_PIDDIR], ["$piddir"],
+@@ -4912,6 +4912,20 @@ AC_DEFINE_UNQUOTED([_PATH_SSH_PIDDIR], ["$piddir"],
  	[Specify location of ssh.pid])
  AC_SUBST([piddir])
  
@@ -72,7 +72,7 @@ index 1635897c..c7a8e662 100644
  dnl allow user to disable some login recording features
  AC_ARG_ENABLE([lastlog],
  	[  --disable-lastlog       disable use of lastlog even if detected [no]],
-@@ -5085,12 +5099,14 @@ G=`eval echo ${piddir}` ; G=`eval echo ${G}`
+@@ -5221,12 +5235,14 @@ G=`eval echo ${piddir}` ; G=`eval echo ${G}`
  H=`eval echo ${PRIVSEP_PATH}` ; H=`eval echo ${H}`
  I=`eval echo ${user_path}` ; I=`eval echo ${I}`
  J=`eval echo ${superuser_path}` ; J=`eval echo ${J}`
@@ -88,7 +88,7 @@ index 1635897c..c7a8e662 100644
  echo "                      Manual pages: $F"
  echo "                          PID file: $G"
 diff --git a/pathnames.h b/pathnames.h
-index f5e11ab1..7915c405 100644
+index cb44caa..4fa9a10 100644
 --- a/pathnames.h
 +++ b/pathnames.h
 @@ -22,6 +22,10 @@
@@ -106,17 +106,17 @@ index f5e11ab1..7915c405 100644
   */
  #define _PATH_SERVER_CONFIG_FILE	SSHDIR "/sshd_config"
  #define _PATH_HOST_CONFIG_FILE		SSHDIR "/ssh_config"
--#define _PATH_HOST_KEY_FILE		SSHDIR "/ssh_host_key"
 -#define _PATH_HOST_DSA_KEY_FILE		SSHDIR "/ssh_host_dsa_key"
 -#define _PATH_HOST_ECDSA_KEY_FILE	SSHDIR "/ssh_host_ecdsa_key"
 -#define _PATH_HOST_ED25519_KEY_FILE	SSHDIR "/ssh_host_ed25519_key"
+-#define _PATH_HOST_XMSS_KEY_FILE	SSHDIR "/ssh_host_xmss_key"
 -#define _PATH_HOST_RSA_KEY_FILE		SSHDIR "/ssh_host_rsa_key"
 -#define _PATH_DH_MODULI			SSHDIR "/moduli"
 +
-+#define _PATH_HOST_KEY_FILE		SSHKEYDIR "/ssh_host_key"
 +#define _PATH_HOST_DSA_KEY_FILE		SSHKEYDIR "/ssh_host_dsa_key"
 +#define _PATH_HOST_ECDSA_KEY_FILE	SSHKEYDIR "/ssh_host_ecdsa_key"
 +#define _PATH_HOST_ED25519_KEY_FILE	SSHKEYDIR "/ssh_host_ed25519_key"
++#define _PATH_HOST_XMSS_KEY_FILE	SSHKEYDIR "/ssh_host_xmss_key"
 +#define _PATH_HOST_RSA_KEY_FILE		SSHKEYDIR "/ssh_host_rsa_key"
 +#define _PATH_DH_MODULI			SSHKEYDIR "/moduli"
 +/* Backwards compatibility */
@@ -125,5 +125,5 @@ index f5e11ab1..7915c405 100644
  #ifndef _PATH_SSH_PROGRAM
  #define _PATH_SSH_PROGRAM		"/usr/bin/ssh"
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 

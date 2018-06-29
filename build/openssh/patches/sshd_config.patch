@@ -1,5 +1,14 @@
+From 15cdf4c6d4635d87d14975809c0f007f648c85dd Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:46:45 -0400
+Subject: [PATCH] sshd_config.patch
+
+---
+ sshd_config | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
 diff --git a/sshd_config b/sshd_config
-index e4c3d3a..e252ad4 100644
+index 717f485..4359e76 100644
 --- a/sshd_config
 +++ b/sshd_config
 @@ -15,6 +15,9 @@
@@ -10,9 +19,9 @@ index e4c3d3a..e252ad4 100644
 +Protocol 2
 +
  #HostKey /etc/ssh/ssh_host_rsa_key
- #HostKey /etc/ssh/ssh_host_dsa_key
  #HostKey /etc/ssh/ssh_host_ecdsa_key
-@@ -34,7 +37,7 @@
+ #HostKey /etc/ssh/ssh_host_ed25519_key
+@@ -33,7 +36,7 @@
  # Authentication:
  
  #LoginGraceTime 2m
@@ -21,7 +30,7 @@ index e4c3d3a..e252ad4 100644
  #StrictModes yes
  #MaxAuthTries 6
  #MaxSessions 10
-@@ -43,7 +46,7 @@
+@@ -42,7 +45,7 @@
  
  # The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
  # but this is overridden so installations will only check .ssh/authorized_keys
@@ -30,7 +39,7 @@ index e4c3d3a..e252ad4 100644
  
  #AuthorizedPrincipalsFile none
  
-@@ -88,34 +91,35 @@ AuthorizedKeysFile	.ssh/authorized_keys
+@@ -87,33 +90,35 @@ AuthorizedKeysFile	.ssh/authorized_keys
  # and ChallengeResponseAuthentication to 'no'.
  #UsePAM no
  
@@ -50,7 +59,6 @@ index e4c3d3a..e252ad4 100644
  #PrintLastLog yes
  #TCPKeepAlive yes
  #UseLogin no
--#UsePrivilegeSeparation sandbox
 +UsePrivilegeSeparation sandbox # GEN005537
  #PermitUserEnvironment no
 -#Compression delayed
@@ -75,10 +83,13 @@ index e4c3d3a..e252ad4 100644
  
  # Example of overriding settings on a per-user basis
  #Match User anoncvs
-@@ -123,3 +127,6 @@ Subsystem	sftp	/usr/libexec/sftp-server
+@@ -121,3 +126,6 @@ Subsystem	sftp	/usr/libexec/sftp-server
  #	AllowTcpForwarding no
  #	PermitTTY no
  #	ForceCommand cvs server
 +Ciphers aes128-ctr,aes192-ctr,aes256-ctr # GEN005505, GEN005506
 +MACs hmac-sha1,hmac-sha2-256,hmac-sha2-512 # GEN005507
 +AllowGroups staff # GEN005521
+-- 
+2.14.3 (Apple Git-98)
+

@@ -1,7 +1,7 @@
-From bc29dcd14f8623098d2383bd36e486145948a653 Mon Sep 17 00:00:00 2001
-From: oracle <solaris@oracle.com>
-Date: Mon, 3 Aug 2015 14:38:19 -0700
-Subject: [PATCH 15/34] Enable login to a role if PAM is ok with it
+From dfeb2cb29273c4f40b31586239275643fac72a19 Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:14:26 -0400
+Subject: [PATCH] 0015-Enable-login-to-a-role-if-PAM-is-ok-with-it.patch
 
 ---
  auth-pam.c        | 14 ++++++++++++++
@@ -13,10 +13,10 @@ Subject: [PATCH 15/34] Enable login to a role if PAM is ok with it
  6 files changed, 53 insertions(+), 1 deletion(-)
 
 diff --git a/auth-pam.c b/auth-pam.c
-index 70a25c19..46bf722e 100644
+index b313ab1..9b20c04 100644
 --- a/auth-pam.c
 +++ b/auth-pam.c
-@@ -1069,6 +1069,20 @@ do_pam_account(void)
+@@ -1095,6 +1095,20 @@ do_pam_account(void)
  	return (sshpam_account_status);
  }
  
@@ -38,13 +38,13 @@ index 70a25c19..46bf722e 100644
  do_pam_setcred(int init)
  {
 diff --git a/auth-pam.h b/auth-pam.h
-index c47b442e..892a27bc 100644
+index 4198607..f5d2092 100644
 --- a/auth-pam.h
 +++ b/auth-pam.h
-@@ -29,6 +29,10 @@ void start_pam(Authctxt *);
+@@ -31,6 +31,10 @@ void start_pam(Authctxt *);
  void finish_pam(void);
  u_int do_pam_account(void);
- void do_pam_session(void);
+ void do_pam_session(struct ssh *);
 +#ifdef HAVE_PAM_AUSER
 +void do_pam_set_auser(const char *);
 +#endif
@@ -53,10 +53,10 @@ index c47b442e..892a27bc 100644
  void do_pam_chauthtok(void);
  int do_pam_putenv(char *, char *);
 diff --git a/auth.h b/auth.h
-index 4a7f2c1f..b4efc255 100644
+index 1175418..ee104d8 100644
 --- a/auth.h
 +++ b/auth.h
-@@ -84,6 +84,9 @@ struct Authctxt {
+@@ -98,6 +98,9 @@ struct Authctxt {
  #ifdef PAM_ENHANCEMENT
  	char		*authmethod_name;
  #endif
@@ -64,24 +64,24 @@ index 4a7f2c1f..b4efc255 100644
 +	char		*auser;
 +#endif
  };
+ 
  /*
-  * Every authentication method has to handle authentication requests for
 diff --git a/auth2-hostbased.c b/auth2-hostbased.c
-index 1b3c3b20..2c51bd2b 100644
+index 8996f7e..d9eca40 100644
 --- a/auth2-hostbased.c
 +++ b/auth2-hostbased.c
-@@ -85,6 +85,9 @@ userauth_hostbased(Authctxt *authctxt)
- 	buffer_dump(&b);
- 	buffer_free(&b);
- #endif
+@@ -84,6 +84,9 @@ userauth_hostbased(struct ssh *ssh)
+ #ifdef DEBUG_PK
+ 	debug("signature:");
+ 	sshbuf_dump_data(sig, siglen, stderr);
++#endif
 +#ifdef HAVE_PAM_AUSER
 +	authctxt->auser = NULL;
-+#endif
- 	pktype = key_type_from_name(pkalg);
+ #endif
+ 	pktype = sshkey_type_from_name(pkalg);
  	if (pktype == KEY_UNSPEC) {
- 		/* this is perfectly legal */
-@@ -142,6 +145,13 @@ userauth_hostbased(Authctxt *authctxt)
- 			buffer_len(&b))) == 1)
+@@ -145,6 +148,13 @@ userauth_hostbased(struct ssh *ssh)
+ 	    sshbuf_ptr(b), sshbuf_len(b), pkalg, ssh->compat)) == 0)
  		authenticated = 1;
  
 +#ifdef HAVE_PAM_AUSER
@@ -91,14 +91,14 @@ index 1b3c3b20..2c51bd2b 100644
 +	}
 +#endif
 +
- 	buffer_free(&b);
+ 	auth2_record_key(authctxt, authenticated, key);
+ 	sshbuf_free(b);
  done:
- 	debug2("userauth_hostbased: authenticated %d", authenticated);
 diff --git a/auth2.c b/auth2.c
-index 6a9f936b..e68aa6d3 100644
+index d504a0d..be82b2d 100644
 --- a/auth2.c
 +++ b/auth2.c
-@@ -339,6 +339,14 @@ userauth_finish(Authctxt *authctxt, int authenticated, const char *method,
+@@ -346,6 +346,14 @@ userauth_finish(struct ssh *ssh, int authenticated, const char *method,
  #endif
  	}
  
@@ -114,10 +114,10 @@ index 6a9f936b..e68aa6d3 100644
  
  #if defined(USE_PAM) && defined(PAM_ENHANCEMENT)
 diff --git a/monitor.c b/monitor.c
-index b0c9b4f4..d2ad5425 100644
+index ff45fc4..435ec39 100644
 --- a/monitor.c
 +++ b/monitor.c
-@@ -404,6 +404,12 @@ monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
+@@ -415,6 +415,12 @@ monitor_child_preauth(Authctxt *_authctxt, struct monitor *pmonitor)
  		}
  	}
  
@@ -130,7 +130,7 @@ index b0c9b4f4..d2ad5425 100644
  	if (!authctxt->valid)
  		fatal("%s: authenticated invalid user", __func__);
  	if (strcmp(auth_method, "unknown") == 0)
-@@ -603,12 +609,14 @@ monitor_reset_key_state(void)
+@@ -618,14 +624,16 @@ monitor_reset_key_state(void)
  {
  	/* reset state */
  	free(key_blob);
@@ -139,14 +139,16 @@ index b0c9b4f4..d2ad5425 100644
 +	hostbased_cuser = NULL;
 +#endif
  	free(hostbased_chost);
+ 	sshauthopt_free(key_opts);
  	key_blob = NULL;
  	key_bloblen = 0;
  	key_blobtype = MM_NOKEY;
+ 	key_opts = NULL;
 -	hostbased_cuser = NULL;
  	hostbased_chost = NULL;
  }
  
-@@ -1066,6 +1074,11 @@ mm_answer_pam_account(int sock, Buffer *m)
+@@ -1087,6 +1095,11 @@ mm_answer_pam_account(int sock, Buffer *m)
  	if (!options.use_pam)
  		fatal("%s: PAM not enabled", __func__);
  
@@ -159,5 +161,5 @@ index b0c9b4f4..d2ad5425 100644
  
  	buffer_put_int(m, ret);
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 

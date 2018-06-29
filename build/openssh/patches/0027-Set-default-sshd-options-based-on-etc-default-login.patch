@@ -1,7 +1,8 @@
-From 846518269f65af1f02714c311eb33dfa4cb291b4 Mon Sep 17 00:00:00 2001
-From: Alex Wilson <alex.wilson@joyent.com>
-Date: Mon, 24 Aug 2015 18:57:27 -0700
-Subject: [PATCH 27/34] Set default sshd options based on /etc/default/login
+From b2e41623b8fb7bb10fd257cb7b2f52d3a8037986 Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:14:27 -0400
+Subject: [PATCH] 
+ 0027-Set-default-sshd-options-based-on-etc-default-login.patch
 
 ---
  pathnames.h   |  1 +
@@ -10,11 +11,11 @@ Subject: [PATCH 27/34] Set default sshd options based on /etc/default/login
  3 files changed, 77 insertions(+), 2 deletions(-)
 
 diff --git a/pathnames.h b/pathnames.h
-index 7915c405..40284a1f 100644
+index 4fa9a10..feef56b 100644
 --- a/pathnames.h
 +++ b/pathnames.h
 @@ -47,6 +47,7 @@
- #define _PATH_HOST_ED25519_KEY_FILE	SSHKEYDIR "/ssh_host_ed25519_key"
+ #define _PATH_HOST_XMSS_KEY_FILE	SSHKEYDIR "/ssh_host_xmss_key"
  #define _PATH_HOST_RSA_KEY_FILE		SSHKEYDIR "/ssh_host_rsa_key"
  #define _PATH_DH_MODULI			SSHKEYDIR "/moduli"
 +#define _PATH_DEFAULT_LOGIN		ETCDIR "/default/login"
@@ -22,10 +23,10 @@ index 7915c405..40284a1f 100644
  #define _PATH_DH_PRIMES			SSHDIR "/primes"
  
 diff --git a/servconf.c b/servconf.c
-index 1501af6a..91f8c942 100644
+index c8d125c..75de759 100644
 --- a/servconf.c
 +++ b/servconf.c
-@@ -30,6 +30,7 @@
+@@ -36,6 +36,7 @@
  #include <unistd.h>
  #include <limits.h>
  #include <stdarg.h>
@@ -33,7 +34,7 @@ index 1501af6a..91f8c942 100644
  #include <errno.h>
  #ifdef HAVE_UTIL_H
  #include <util.h>
-@@ -188,6 +189,64 @@ option_clear_or_none(const char *o)
+@@ -199,6 +200,64 @@ option_clear_or_none(const char *o)
  	return o == NULL || strcasecmp(o, "none") == 0;
  }
  
@@ -98,7 +99,7 @@ index 1501af6a..91f8c942 100644
  static void
  assemble_algorithms(ServerOptions *o)
  {
-@@ -216,6 +275,8 @@ fill_default_server_options(ServerOptions *options)
+@@ -262,6 +321,8 @@ fill_default_server_options(ServerOptions *options)
  		options->use_pam = 0;
  #endif
  
@@ -108,10 +109,10 @@ index 1501af6a..91f8c942 100644
  	if (options->num_host_key_files == 0) {
  		/* fill default hostkeys for protocols */
 diff --git a/sshd_config.4 b/sshd_config.4
-index 6a6f940b..0b2393dd 100644
+index 441f043..fb2df91 100644
 --- a/sshd_config.4
 +++ b/sshd_config.4
-@@ -1099,7 +1099,13 @@ Specifies the maximum number of authentication attempts permitted per
+@@ -1155,7 +1155,13 @@ Specifies the maximum number of authentication attempts permitted per
  connection.
  Once the number of failures reaches half this value,
  additional failures are logged.
@@ -126,7 +127,7 @@ index 6a6f940b..0b2393dd 100644
  .It Cm MaxSessions
  Specifies the maximum number of open shell, login or subsystem (e.g. sftp)
  sessions permitted per network connection.
-@@ -1150,7 +1156,14 @@ The default is
+@@ -1206,7 +1212,14 @@ The default is
  When password authentication is allowed, it specifies whether the
  server allows login to accounts with empty password strings.
  The default is
@@ -143,5 +144,5 @@ index 6a6f940b..0b2393dd 100644
  Specifies the destinations to which TCP port forwarding is permitted.
  The forwarding specification must be one of the following forms:
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 

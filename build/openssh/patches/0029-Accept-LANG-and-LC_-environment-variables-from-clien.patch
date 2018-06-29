@@ -1,11 +1,9 @@
-From baeb17eb76772a2dbbcc4d52a22ddfc405276db1 Mon Sep 17 00:00:00 2001
-From: Alex Wilson <alex.wilson@joyent.com>
-Date: Fri, 4 Sep 2015 11:04:30 -0700
-Subject: [PATCH 29/34] Accept LANG and LC_* environment variables from clients
- by default
+From 36643c844ff5a0ce6802468198a252dbab11701c Mon Sep 17 00:00:00 2001
+From: Pavel Zakharov <pavel.zakharov@delphix.com>
+Date: Tue, 19 Jun 2018 13:45:43 -0400
+Subject: [PATCH] 
+ 0029-Accept-LANG-and-LC_-environment-variables-from-clien.patch
 
-This preserves most of the old SunSSH locale negotiation
-behaviour (at least the parts that are most commonly used).
 ---
  servconf.c    | 27 +++++++++++++++++++++++++--
  session.c     | 25 +++++++++++++++++++++++--
@@ -14,77 +12,75 @@ behaviour (at least the parts that are most commonly used).
  4 files changed, 64 insertions(+), 5 deletions(-)
 
 diff --git a/servconf.c b/servconf.c
-index 91f8c942..6f1f0068 100644
+index 75de759..b5caa9c 100644
 --- a/servconf.c
 +++ b/servconf.c
-@@ -150,7 +150,7 @@ initialize_server_options(ServerOptions *options)
+@@ -160,7 +160,7 @@ initialize_server_options(ServerOptions *options)
  	options->client_alive_interval = -1;
  	options->client_alive_count_max = -1;
  	options->num_authkeys_files = 0;
 -	options->num_accept_env = 0;
 +	options->num_accept_env = -1;
  	options->permit_tun = -1;
- 	options->num_permitted_opens = -1;
+ 	options->permitted_opens = NULL;
  	options->adm_forced_command = NULL;
-@@ -400,6 +400,25 @@ fill_default_server_options(ServerOptions *options)
+@@ -448,6 +448,25 @@ fill_default_server_options(ServerOptions *options)
  		options->max_sessions = DEFAULT_SESSIONS_MAX;
  	if (options->use_dns == -1)
  		options->use_dns = 0;
 +	if (options->num_accept_env == -1) {
 +		options->num_accept_env = 0;
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LANG");
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LC_ALL");
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LC_CTYPE");
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LC_COLLATE");
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LC_TIME");
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LC_NUMERIC");
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LC_MONETARY");
-+		options->accept_env[options->num_accept_env++] =
-+		    xstrdup("LC_MESSAGES");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LANG");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LC_ALL");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LC_CTYPE");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LC_COLLATE");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LC_TIME");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LC_NUMERIC");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LC_MONETARY");
++		array_append("[default]", 0, "AcceptEnv", &options->accept_env,
++		    &options->num_accept_env, "LC_MESSAGES");
 +	}
  	if (options->client_alive_interval == -1)
  		options->client_alive_interval = 0;
  	if (options->client_alive_count_max == -1)
-@@ -1748,11 +1767,15 @@ process_server_config_line(ServerOptions *options, char *line,
+@@ -1932,8 +1951,12 @@ process_server_config_line(ServerOptions *options, char *line,
  			if (strchr(arg, '=') != NULL)
  				fatal("%s line %d: Invalid environment name.",
  				    filename, linenum);
 +			if (options->num_accept_env == -1)
 +				options->num_accept_env = 0;
- 			if (options->num_accept_env >= MAX_ACCEPT_ENV)
- 				fatal("%s line %d: too many allow env.",
- 				    filename, linenum);
  			if (!*activep)
  				continue;
 +			if (strcmp(arg, "none") == 0)
 +				continue;
- 			options->accept_env[options->num_accept_env++] =
- 			    xstrdup(arg);
- 		}
-@@ -2224,7 +2247,7 @@ copy_set_server_options(ServerOptions *dst, ServerOptions *src, int preauth)
- 	} \
+ 			array_append(filename, linenum, "AcceptEnv",
+ 			    &options->accept_env, &options->num_accept_env,
+ 			    arg);
+@@ -2411,7 +2434,7 @@ copy_set_server_options(ServerOptions *dst, ServerOptions *src, int preauth)
  } while(0)
- #define M_CP_STRARRAYOPT(n, num_n) do {\
--	if (src->num_n != 0) { \
-+	if (src->num_n != 0 && src->num_n != -1) { \
- 		for (dst->num_n = 0; dst->num_n < src->num_n; dst->num_n++) \
- 			dst->n[dst->num_n] = xstrdup(src->n[dst->num_n]); \
- 	} \
+ #define M_CP_STRARRAYOPT(s, num_s) do {\
+ 	u_int i; \
+-	if (src->num_s != 0) { \
++	if (src->num_s != 0 && src->num_s != -1) { \
+ 		for (i = 0; i < dst->num_s; i++) \
+ 			free(dst->s[i]); \
+ 		free(dst->s); \
 diff --git a/session.c b/session.c
-index 9586901e..13ee4bbe 100644
+index 6434792..ba3ea76 100644
 --- a/session.c
 +++ b/session.c
-@@ -860,6 +860,18 @@ child_set_env(char ***envp, u_int *envsizep, const char *name,
+@@ -846,6 +846,18 @@ check_quietlogin(Session *s, const char *command)
+ 	return 0;
  }
  
- /*
++/*
 + * If the given environment variable is set in the daemon's environment,
 + * push it into the new child as well. If it is unset, do nothing.
 + */
@@ -96,11 +92,10 @@ index 9586901e..13ee4bbe 100644
 +		child_set_env(envp, envsizep, name, value);
 +}
 +
-+/*
+ /*
   * Reads environment variables from the given file and adds/overrides them
   * into the environment.  If the file does not exist, this does nothing.
-  * Otherwise, it must consist of empty lines, comments (line starts with '#')
-@@ -1022,6 +1034,16 @@ do_setup_env(Session *s, const char *shell)
+@@ -1019,6 +1031,16 @@ do_setup_env(struct ssh *ssh, Session *s, const char *shell)
  	ssh_gssapi_do_child(&env, &envsize);
  #endif
  
@@ -117,7 +112,7 @@ index 9586901e..13ee4bbe 100644
  	/* Set basic environment. */
  	for (i = 0; i < s->num_env; i++)
  		child_set_env(&env, &envsize, s->env[i].name, s->env[i].val);
-@@ -1062,8 +1084,7 @@ do_setup_env(Session *s, const char *shell)
+@@ -1059,8 +1081,7 @@ do_setup_env(struct ssh *ssh, Session *s, const char *shell)
  	/* Normal systems set SHELL by default. */
  	child_set_env(&env, &envsize, "SHELL", shell);
  
@@ -128,12 +123,12 @@ index 9586901e..13ee4bbe 100644
  #ifdef PER_SESSION_XAUTHFILE
          if (s->auth_file != NULL)
 diff --git a/sshd_config b/sshd_config
-index 62027108..9fcf2ca1 100644
+index 86263d7..717f485 100644
 --- a/sshd_config
 +++ b/sshd_config
-@@ -27,6 +27,10 @@ Port 22
- SyslogFacility AUTH
- LogLevel INFO
+@@ -26,6 +26,10 @@
+ #SyslogFacility AUTH
+ #LogLevel INFO
  
 +# Use the client's locale/language settings
 +#AcceptEnv LANG LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_NUMERIC
@@ -143,10 +138,10 @@ index 62027108..9fcf2ca1 100644
  
  #LoginGraceTime 2m
 diff --git a/sshd_config.4 b/sshd_config.4
-index 0b2393dd..fbd9b1cd 100644
+index fb2df91..3243be3 100644
 --- a/sshd_config.4
 +++ b/sshd_config.4
-@@ -85,7 +85,18 @@ directives.
+@@ -84,7 +84,18 @@ directives.
  Be warned that some environment variables could be used to bypass restricted
  user environments.
  For this reason, care should be taken in the use of this directive.
@@ -167,5 +162,5 @@ index 0b2393dd..fbd9b1cd 100644
  Specifies which address family should be used by
  .Xr sshd 1M .
 -- 
-2.11.0
+2.14.3 (Apple Git-98)
 
