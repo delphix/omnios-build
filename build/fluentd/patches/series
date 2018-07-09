@@ -1,2 +1,2 @@
-fluent-plugin-splunk-hec-1.0.0-metrics-no-fields.patch
+fluent-plugin-splunk-hec-1.0.1-metrics-no-fields.patch
 fluent-plugin-splunk-http-eventcollector-0.3.0-net-http-persistent.patch

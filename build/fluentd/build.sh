@@ -28,7 +28,7 @@
 . ../../lib/gem-functions.sh
 
 PROG=fluentd    # App name
-VER=1.2.1       # App version
+VER=1.2.2       # App version
 VERHUMAN=$VER   # Human-readable version
 PKG=application/fluentd            # Package name (e.g. library/foo)
 
@@ -43,7 +43,7 @@ REMOVE_PREVIOUS=1
 RUNTIME_RUBY_VER=2.5.1
 PREFIX="/opt/ruby/$RUNTIME_RUBY_VER"
 
-GEM_DEPENDS="fluent-plugin-splunk-http-eventcollector-0.3.0 fluent-plugin-splunk-hec-1.0.0"
+GEM_DEPENDS="fluent-plugin-splunk-http-eventcollector-0.3.0 fluent-plugin-splunk-hec-1.0.1"
 
 install_smf() {
     FLUENTD_CONF_DIR=$DESTDIR/etc/fluent
@@ -67,7 +67,7 @@ init
 download_source
 prep_build
 build
-patch_gem "fluent-plugin-splunk-hec-1.0.0"
+patch_gem "fluent-plugin-splunk-hec-1.0.1"
 patch_gem "fluent-plugin-splunk-http-eventcollector-0.3.0"
 install_smf
 make_isa_stub
