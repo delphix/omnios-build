@@ -1,0 +1,22 @@
+--- a/lib/misc/vthreadBase.c
++++ b/lib/misc/vthreadBase.c
+@@ -53,14 +53,14 @@
+ #if defined _WIN32
+ #  include <windows.h>
+ #else
+-#  if defined(__sun__) && !defined(_XOPEN_SOURCE)
++/* #  if defined(__sun__) && !defined(_XOPEN_SOURCE) */
+      /*
+       * Solaris headers don't define constants we need unless
+       * the Posix standard is somewhat modern.  Most of our builds
+       * set this; we should chase down the oversight.
+       */
+-#    define _XOPEN_SOURCE 500
+-#  endif
++/* #    define _XOPEN_SOURCE 500
++#  endif */
+ #  if defined __linux__
+ #    include <sys/syscall.h>   // for gettid(2)
+ #  endif
+-- 
+2.13.0

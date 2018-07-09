@@ -29,9 +29,9 @@
 . ../../lib/functions.sh
 
 PROG=open-vm-tools
-BUILDDIR=open-vm-tools-10.1.0-4449150
-VER=10.1.0
-VERHUMAN=10.1.0
+BUILDDIR=open-vm-tools-10.2.0-7253323
+VER=10.2.0
+VERHUMAN=10.2.0
 PKG=system/virtualization/open-vm-tools
 SUMMARY="Open Virtual Machine Tools"
 DESC="The Open Virtual Machine Tools project aims to provide a suite of open source virtualization utilities and drivers to improve the functionality and user experience of virtualization. The project currently runs in guest operating systems under the VMware hypervisor."

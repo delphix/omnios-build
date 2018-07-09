@@ -1,6 +1,5 @@
-remove-name-conflict.patch -p1
 enable-GuestInfoGetPrimaryIP.patch -p1
 add-imports-for-Solaris-networking.patch -p1
 add-nsl.patch -p1
-ucontext.patch -p0
-no-glib-main-loop-unref.patch -p0
+redefine-vthreadbase-xopen.patch -p1
+include-regset.patch -p1

@@ -1,14 +1,21 @@
 --- a/lib/nicInfo/nicInfoPosix.c
 +++ b/lib/nicInfo/nicInfoPosix.c
-@@ -280,7 +280,7 @@ GuestInfoGetNicInfo(NicInfoV3 *nicInfo) // OUT
-  *
-  ******************************************************************************
-  */
--#if defined(__FreeBSD__) || defined(__APPLE__) || defined(USERWORLD)
-+#if defined(__FreeBSD__) || defined(__APPLE__) || defined(USERWORLD) || defined(sun)
- 
- char *
- GuestInfoGetPrimaryIP(void)
--- 
-2.1.4
+@@ -141,7 +144,7 @@ static int ReadInterfaceDetailsLowPriority(const struct intf_entry *entry,
+                                            void *arg);
+ static Bool RecordRoutingInfo(NicInfoV3 *nicInfo);
 
+-#if !defined(__FreeBSD__) && !defined(__APPLE__) && !defined(USERWORLD)
++#if !defined(__FreeBSD__) && !defined(__APPLE__) && !defined(USERWORLD) && !defined(__sun__)
+ typedef struct GuestInfoIpPriority {
+    char *ipstr;
+    NicInfoPriority priority;
+@@ -426,6 +429,7 @@ Bool GuestInfoGetNicInfo(NicInfoV3 *nicInfo) // OUT
+ #if defined(__FreeBSD__) || \
+     defined(__APPLE__) || \
+     defined(USERWORLD) || \
++    defined(__sun__) || \
+     (defined(__linux__) && defined(NO_DNET))
+
+ char *
+-- 
+2.13.0

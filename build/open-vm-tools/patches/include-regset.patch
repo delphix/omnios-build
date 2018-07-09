@@ -1,0 +1,13 @@
+--- a/lib/include/sigPosixRegs.h
++++ b/lib/include/sigPosixRegs.h
+@@ -201,6 +201,7 @@ extern "C" {
+ #define SC_EIP(uc) ((unsigned long) (uc)->uc_mcontext.mc_eip)
+ #endif
+ #elif defined (sun)
++#include <sys/regset.h>
+ #ifdef __x86_64__
+ #define SC_EAX(uc) ((unsigned long) (uc)->uc_mcontext.gregs[REG_RAX])
+ #define SC_EBX(uc) ((unsigned long) (uc)->uc_mcontext.gregs[REG_RBX])
+--
+2.1.4
+
