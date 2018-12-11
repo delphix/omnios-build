@@ -21,7 +21,7 @@
 #
 #
 # Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
-# Copyright (c) 2015 by Delphix. All rights reserved.
+# Copyright (c) 2018 by Delphix. All rights reserved.
 #
 #############################################################################
 # Configuration for the build system
@@ -65,7 +65,7 @@ NOSCRIPTSTUB=
 #############################################################################
 
 # libffi --> use pkg(5) to determine what we're running:
-FFIVERS=`pkg list libffi | grep libffi | awk '{print $2}' | \
+FFIVERS=`pkg list libffi | grep libffi | awk '{print $3}' | \
 	awk -F- '{print $1}'`
 
 

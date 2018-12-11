@@ -23,14 +23,14 @@
 #
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
-# Copyright (c) 2014 by Delphix. All rights reserved.
+# Copyright (c) 2018 by Delphix. All rights reserved.
 #
 
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=glib
-VER=2.34.3
+VER=2.40.0
 PKG=library/glib2
 SUMMARY="$PROG - GNOME GLib utility library"
 DESC="$SUMMARY"
