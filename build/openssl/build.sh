@@ -22,13 +22,15 @@
 #
 #
 # Copyright 2017 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2019 OmniOS Community Edition (OmniOSce) Association.
 # Use is subject to license terms.
+# Copyright (c) 2019 by Delphix. All rights reserved.
 #
 # Load support functions
 . ../../lib/functions.sh
 
 PROG=openssl
-VER=1.0.2k
+VER=1.0.2s
 VERHUMAN=$VER
 PKG=library/security/openssl # Package name (without prefix)
 SUMMARY="$PROG - A toolkit for Secure Sockets Layer (SSL v2/v3) and Transport Layer (TLS v1) protocols and general purpose cryptographic library"
@@ -39,10 +41,11 @@ BUILD_DEPENDS_IPS="$DEPENDS_IPS developer/sunstudio12.1"
 
 # Generic configure optons for both 32 and 64bit variants
 OPENSSL_CONFIG_OPTS="
-		--pk11-libname=/usr/lib/libpkcs11.so.1 
+		--pk11-libname=/usr/lib/libpkcs11.so.1
 		shared
 		threads
 		zlib
+		no-err
 		enable-ssl2"
 
 # Configure options specific to a 32bit build
@@ -50,6 +53,8 @@ OPENSSL_CONFIG_32_OPTS=""
 
 # Configure options specific to a 64bit build
 OPENSSL_CONFIG_64_OPTS="enable-ec_nistp_64_gcc_128"
+
+base_LDFLAGS="-shared -Wl,-z,text,-z,aslr,-z,ignore"
 
 NO_PARALLEL_MAKE=1
 
@@ -65,30 +70,22 @@ make_prog() {
 }
 
 configure32() {
-    if [ -n "`isalist | grep sparc`" ]; then
-      SSLPLAT=solaris-sparcv8-cc
-    else
-      SSLPLAT=solaris-x86-gcc
-    fi
+    SSLPLAT=solaris-x86-gcc
     logmsg "--- Configure (32-bit) $SSLPLAT"
     logcmd ./Configure $SSLPLAT --prefix=$PREFIX \
 	${OPENSSL_CONFIG_OPTS} \
 	${OPENSSL_CONFIG_32_OPTS} \
         || logerr "Failed to run configure"
-    SHARED_LDFLAGS="-shared -Wl,-z,text"
+    SHARED_LDFLAGS="${base_LDFLAGS}"
 }
 configure64() {
-    if [ -n "`isalist | grep sparc`" ]; then
-      SSLPLAT=solaris64-sparcv9-cc
-    else
-      SSLPLAT=solaris64-x86_64-gcc
-    fi
+    SSLPLAT=solaris64-x86_64-gcc
     logmsg "--- Configure (64-bit) $SSLPLAT"
     logcmd ./Configure $SSLPLAT --prefix=$PREFIX \
 	${OPENSSL_CONFIG_OPTS} \
 	${OPENSSL_CONFIG_64_OPTS} \
         || logerr "Failed to run configure"
-    SHARED_LDFLAGS="-m64 -shared -Wl,-z,text"
+    SHARED_LDFLAGS="-m64 ${base_LDFLAGS}"
 }
 
 make_install() {
@@ -126,6 +123,13 @@ move_libs() {
     popd > /dev/null
 }
 
+install_pkcs11()
+{
+    logmsg "--- installing pkcs11 engine"
+    pushd $SRCDIR/engine_pkcs11 > /dev/null
+    find . | cpio -pvmud $TMPDIR/$BUILDDIR/engines/
+    popd > /dev/null
+}
 
 # Turn the letter component of the version into a number for IPS versioning
 ord26() {
@@ -148,8 +152,10 @@ make_package() {
 init
 download_source $PROG $PROG $VER
 patch_source
+install_pkcs11
 prep_build
 build
+(cd $DESTDIR; gpatch -p1 < $SRCDIR/$PATCHDIR/post/opensslconf.dualarch)
 move_libs
 make_lintlibs crypto /lib /usr/include "openssl/!(ssl*|*tls*).h"
 make_lintlibs ssl /lib /usr/include "openssl/{ssl,*tls}*.h"
